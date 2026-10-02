@@ -150,6 +150,19 @@ ASK_WINDOW_SECONDS = 600                              # ...per 10 minutes, per v
 _recent_questions: dict[str, list[float]] = {}
 
 
+def visitor_id(request):
+    """Who is asking, for the rate limit.
+
+    On Vercel every request arrives through Vercel's proxy, so the direct address is
+    the proxy's, and all visitors would share one limit. Vercel puts the real
+    visitor's address in the x-real-ip header. We only trust that header on Vercel
+    (where VERCEL=1 is set), because locally anyone could fake it.
+    """
+    if os.getenv("VERCEL") and request.headers.get("x-real-ip"):
+        return request.headers["x-real-ip"]
+    return request.client.host if request.client else "unknown"
+
+
 def seconds_until_allowed(visitor):
     """0 if this visitor may ask now (and records the question); otherwise how long to wait."""
     now = time.monotonic()
@@ -164,7 +177,7 @@ def seconds_until_allowed(visitor):
 @app.post("/ask")
 def ask(body: AskRequest, request: Request):
     """Answer a food-help question from trusted sources only. Nothing is stored."""
-    wait = seconds_until_allowed(request.client.host if request.client else "unknown")
+    wait = seconds_until_allowed(visitor_id(request))
     if wait:
         raise HTTPException(429, "You've asked a lot of questions. Please wait a few minutes, or dial 2-1-1.",
                             headers={"Retry-After": str(wait)})

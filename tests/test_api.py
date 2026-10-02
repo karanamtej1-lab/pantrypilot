@@ -161,3 +161,43 @@ def test_every_volunteer_listing_has_a_name_and_https_link():
     for o in listings:
         assert o["name"].strip()
         assert o["url"].startswith("https://"), o["name"]
+
+
+# ---------- deployment (Vercel) ----------
+
+def test_rate_limit_uses_real_ip_on_vercel(monkeypatch):
+    monkeypatch.setattr(main, "answer_question", lambda q: {"answer": "ok", "sources": []})
+    monkeypatch.setattr(main, "ASK_LIMIT", 1)
+    main._recent_questions.clear()
+    monkeypatch.setenv("VERCEL", "1")
+    first = client.post("/ask", json={"question": "hi there"}, headers={"x-real-ip": "1.1.1.1"})
+    other_visitor = client.post("/ask", json={"question": "hi there"}, headers={"x-real-ip": "2.2.2.2"})
+    same_visitor = client.post("/ask", json={"question": "hi there"}, headers={"x-real-ip": "1.1.1.1"})
+    assert (first.status_code, other_visitor.status_code, same_visitor.status_code) == (200, 200, 429)
+    main._recent_questions.clear()
+
+
+def test_x_real_ip_is_ignored_when_not_on_vercel(monkeypatch):
+    monkeypatch.setattr(main, "answer_question", lambda q: {"answer": "ok", "sources": []})
+    monkeypatch.setattr(main, "ASK_LIMIT", 1)
+    main._recent_questions.clear()
+    monkeypatch.delenv("VERCEL", raising=False)
+    client.post("/ask", json={"question": "hi there"}, headers={"x-real-ip": "1.1.1.1"})
+    faked = client.post("/ask", json={"question": "hi there"}, headers={"x-real-ip": "9.9.9.9"})
+    assert faked.status_code == 429  # a fake header can't dodge the limit locally
+    main._recent_questions.clear()
+
+
+def test_vercel_config_points_at_the_app():
+    import json
+    import tomllib
+    from pathlib import Path
+    root = Path(__file__).resolve().parent.parent
+    config = tomllib.loads((root / "pyproject.toml").read_text())
+    assert config["tool"]["vercel"]["entrypoint"] == "backend.main:app"
+    # Every package the live site imports must be listed for Vercel too.
+    live = {line.strip() for line in (root / "requirements.txt").read_text().splitlines() if line.strip()} - {"pytest"}
+    assert live <= set(config["project"]["dependencies"])
+    assert "backend/main.py" in json.loads((root / "vercel.json").read_text())["functions"]
+    ignored = (root / ".vercelignore").read_text().split()
+    assert ".env" in ignored and "venv/" in ignored

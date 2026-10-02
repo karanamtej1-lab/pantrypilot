@@ -1,0 +1,11 @@
+# Never upload these to Vercel (keys live in Vercel's Environment Variables instead).
+.env
+.env.*
+!.env.example
+venv/
+.venv/
+__pycache__/
+.pytest_cache/
+tests/
+*.pyc
+.DS_Store

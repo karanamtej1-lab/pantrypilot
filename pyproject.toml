@@ -1,0 +1,22 @@
+# Settings Vercel reads when it deploys PantryPilot.
+# Local development still uses requirements.txt + venv (see CLAUDE.md).
+
+[project]
+name = "pantrypilot"
+version = "1.0.0"
+description = "Food pantry map, grounded AI helper, and SNAP Hours Coach for Collin & Denton County, TX"
+requires-python = ">=3.12"
+# Packages the LIVE site needs. Keep in sync with requirements.txt
+# (which also has pytest for running tests locally).
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "numpy",
+    "python-dotenv",
+    "groq",
+    "anthropic",
+]
+
+[tool.vercel]
+# The FastAPI app lives in backend/main.py, not a default location, so point Vercel at it.
+entrypoint = "backend.main:app"
