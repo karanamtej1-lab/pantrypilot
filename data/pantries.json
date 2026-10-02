@@ -1,0 +1,1868 @@
+[
+  {
+    "id": "frisco-family-services-food-pantry",
+    "name": "Frisco Family Services Food Pantry",
+    "address": "9085 Dogwood St",
+    "city": "Frisco",
+    "zip": "75033",
+    "lat": 33.150829,
+    "lng": -96.817868,
+    "hours_text": "Mon-Fri 9am-5pm (Wed to 6pm); apply at office first, case manager appointment",
+    "schedule": {
+      "type": "unknown"
+    },
+    "notes": [],
+    "needs_review": true,
+    "id_required": true,
+    "drive_thru": null,
+    "spanish": null,
+    "serves": "Frisco city + Frisco ISD",
+    "phone": "(972) 335-9495",
+    "website": "https://friscofamilyservices.org",
+    "date_verified": null
+  },
+  {
+    "id": "heart-of-the-city-frisco-mobile",
+    "name": "Heart of the City Frisco (mobile)",
+    "address": "25631 Smotherman Rd",
+    "city": "Frisco",
+    "zip": "75034",
+    "lat": 33.163342,
+    "lng": -96.884915,
+    "hours_text": "1st & 3rd Sat 9-11am",
+    "schedule": {
+      "type": "scheduled",
+      "rules": [
+        {
+          "days": [
+            "sat"
+          ],
+          "weeks": [
+            1,
+            3
+          ],
+          "windows": [
+            {
+              "start": "09:00",
+              "end": "11:00"
+            }
+          ]
+        }
+      ]
+    },
+    "notes": [],
+    "needs_review": false,
+    "id_required": null,
+    "drive_thru": true,
+    "spanish": null,
+    "serves": null,
+    "phone": "(972) 824-6171",
+    "website": "https://heartofthecitylewisville.com/locations",
+    "date_verified": null
+  },
+  {
+    "id": "ntx-community-food-pantry",
+    "name": "NTX Community Food Pantry",
+    "address": "5201 S Colony Blvd Suite 650",
+    "city": "The Colony",
+    "zip": "75056",
+    "lat": 33.084312,
+    "lng": -96.879102,
+    "hours_text": "Mon 9am-12pm; Wed 9am-2pm; Thu 4:30-6:30pm",
+    "schedule": {
+      "type": "scheduled",
+      "rules": [
+        {
+          "days": [
+            "mon"
+          ],
+          "windows": [
+            {
+              "start": "09:00",
+              "end": "12:00"
+            }
+          ]
+        },
+        {
+          "days": [
+            "wed"
+          ],
+          "windows": [
+            {
+              "start": "09:00",
+              "end": "14:00"
+            }
+          ]
+        },
+        {
+          "days": [
+            "thu"
+          ],
+          "windows": [
+            {
+              "start": "16:30",
+              "end": "18:30"
+            }
+          ]
+        }
+      ]
+    },
+    "notes": [],
+    "needs_review": false,
+    "id_required": null,
+    "drive_thru": null,
+    "spanish": null,
+    "serves": null,
+    "phone": "(469) 514-9065",
+    "website": null,
+    "date_verified": null
+  },
+  {
+    "id": "the-storehouse-of-metro-relief",
+    "name": "The Storehouse of Metro Relief",
+    "address": null,
+    "city": "The Colony",
+    "zip": "75056",
+    "lat": null,
+    "lng": null,
+    "hours_text": "Call for hours",
+    "schedule": {
+      "type": "unknown"
+    },
+    "notes": [],
+    "needs_review": false,
+    "id_required": false,
+    "drive_thru": null,
+    "spanish": null,
+    "serves": null,
+    "phone": "(214) 705-3555",
+    "website": null,
+    "date_verified": null
+  },
+  {
+    "id": "little-elm-area-food-bank",
+    "name": "Little Elm Area Food Bank",
+    "address": "501 Bill St",
+    "city": "Little Elm",
+    "zip": "75068",
+    "lat": 33.151384,
+    "lng": -96.946148,
+    "hours_text": "Mon 9am-4pm; Thu 9am-4pm; Fri 9am-12pm; 5 visits/yr",
+    "schedule": {
+      "type": "scheduled",
+      "rules": [
+        {
+          "days": [
+            "mon"
+          ],
+          "windows": [
+            {
+              "start": "09:00",
+              "end": "16:00"
+            }
+          ]
+        },
+        {
+          "days": [
+            "thu"
+          ],
+          "windows": [
+            {
+              "start": "09:00",
+              "end": "16:00"
+            }
+          ]
+        },
+        {
+          "days": [
+            "fri"
+          ],
+          "windows": [
+            {
+              "start": "09:00",
+              "end": "12:00"
+            }
+          ]
+        }
+      ]
+    },
+    "notes": [
+      "5 visits/yr"
+    ],
+    "needs_review": false,
+    "id_required": null,
+    "drive_thru": null,
+    "spanish": false,
+    "serves": "Little Elm ISD area",
+    "phone": "(972) 294-4061",
+    "website": null,
+    "date_verified": "2026-09-28"
+  },
+  {
+    "id": "building-the-bridges-feed-my-sheep",
+    "name": "Building The Bridges: Feed My Sheep",
+    "address": "520 Lobo Ln",
+    "city": "Little Elm",
+    "zip": "75068",
+    "lat": 33.152212,
+    "lng": -96.942882,
+    "hours_text": "Wed 10am-2pm",
+    "schedule": {
+      "type": "scheduled",
+      "rules": [
+        {
+          "days": [
+            "wed"
+          ],
+          "windows": [
+            {
+              "start": "10:00",
+              "end": "14:00"
+            }
+          ]
+        }
+      ]
+    },
+    "notes": [],
+    "needs_review": false,
+    "id_required": null,
+    "drive_thru": null,
+    "spanish": null,
+    "serves": null,
+    "phone": null,
+    "website": null,
+    "date_verified": null
+  },
+  {
+    "id": "living-word-family-resource-center",
+    "name": "Living Word Family Resource Center",
+    "address": null,
+    "city": "Little Elm",
+    "zip": "75068",
+    "lat": null,
+    "lng": null,
+    "hours_text": "Call for hours",
+    "schedule": {
+      "type": "unknown"
+    },
+    "notes": [],
+    "needs_review": false,
+    "id_required": null,
+    "drive_thru": null,
+    "spanish": null,
+    "serves": null,
+    "phone": "(469) 362-9010",
+    "website": null,
+    "date_verified": null
+  },
+  {
+    "id": "christian-community-action-cca",
+    "name": "Christian Community Action (CCA)",
+    "address": "200 S Mill St",
+    "city": "Lewisville",
+    "zip": "75057",
+    "lat": 33.044809,
+    "lng": -96.994092,
+    "hours_text": "Mon-Fri by appointment",
+    "schedule": {
+      "type": "appointment_only"
+    },
+    "notes": [],
+    "needs_review": false,
+    "id_required": null,
+    "drive_thru": null,
+    "spanish": null,
+    "serves": null,
+    "phone": "(972) 436-4357",
+    "website": "https://www.ccahope.org",
+    "date_verified": "2026-09-28"
+  },
+  {
+    "id": "salvation-army-lewisville",
+    "name": "Salvation Army Lewisville",
+    "address": "880 Fox Ave",
+    "city": "Lewisville",
+    "zip": "75067",
+    "lat": 33.034793,
+    "lng": -97.009768,
+    "hours_text": "Tue & Thu 9-11:30am, 1:30-3:30pm",
+    "schedule": {
+      "type": "scheduled",
+      "rules": [
+        {
+          "days": [
+            "tue",
+            "thu"
+          ],
+          "windows": [
+            {
+              "start": "09:00",
+              "end": "11:30"
+            },
+            {
+              "start": "13:30",
+              "end": "15:30"
+            }
+          ]
+        }
+      ]
+    },
+    "notes": [],
+    "needs_review": false,
+    "id_required": null,
+    "drive_thru": null,
+    "spanish": null,
+    "serves": null,
+    "phone": "(972) 353-9400",
+    "website": "https://salvationarmyntx.org/north-texas/lewisville/",
+    "date_verified": "2026-09-28"
+  },
+  {
+    "id": "heart-of-the-city-mill-st",
+    "name": "Heart of the City - Mill St",
+    "address": "2021 N Mill St",
+    "city": "Lewisville",
+    "zip": "75057",
+    "lat": 33.07421,
+    "lng": -97.01067,
+    "hours_text": "Tue 2-6pm; Thu 10am-1pm; Sat 9-11am (appointment)",
+    "schedule": {
+      "type": "scheduled",
+      "rules": [
+        {
+          "days": [
+            "tue"
+          ],
+          "windows": [
+            {
+              "start": "14:00",
+              "end": "18:00"
+            }
+          ]
+        },
+        {
+          "days": [
+            "thu"
+          ],
+          "windows": [
+            {
+              "start": "10:00",
+              "end": "13:00"
+            }
+          ]
+        },
+        {
+          "days": [
+            "sat"
+          ],
+          "appointment": true,
+          "windows": [
+            {
+              "start": "09:00",
+              "end": "11:00"
+            }
+          ]
+        }
+      ]
+    },
+    "notes": [],
+    "needs_review": false,
+    "id_required": null,
+    "drive_thru": null,
+    "spanish": null,
+    "serves": null,
+    "phone": "(972) 824-6171",
+    "website": "https://heartofthecitylewisville.com/locations",
+    "date_verified": "2026-09-28"
+  },
+  {
+    "id": "heart-of-the-city-main-st",
+    "name": "Heart of the City - Main St",
+    "address": "1569 W Main St",
+    "city": "Lewisville",
+    "zip": "75067",
+    "lat": 33.042377,
+    "lng": -97.033394,
+    "hours_text": "Mon 2-4pm; Wed 3-5pm; Sat 9-11am (appointment)",
+    "schedule": {
+      "type": "scheduled",
+      "rules": [
+        {
+          "days": [
+            "mon"
+          ],
+          "windows": [
+            {
+              "start": "14:00",
+              "end": "16:00"
+            }
+          ]
+        },
+        {
+          "days": [
+            "wed"
+          ],
+          "windows": [
+            {
+              "start": "15:00",
+              "end": "17:00"
+            }
+          ]
+        },
+        {
+          "days": [
+            "sat"
+          ],
+          "appointment": true,
+          "windows": [
+            {
+              "start": "09:00",
+              "end": "11:00"
+            }
+          ]
+        }
+      ]
+    },
+    "notes": [],
+    "needs_review": false,
+    "id_required": null,
+    "drive_thru": null,
+    "spanish": null,
+    "serves": null,
+    "phone": "(972) 824-6171",
+    "website": "https://heartofthecitylewisville.com/locations",
+    "date_verified": "2026-09-28"
+  },
+  {
+    "id": "westside-baptist-church",
+    "name": "Westside Baptist Church",
+    "address": "900 Bellaire Blvd",
+    "city": "Lewisville",
+    "zip": "75067",
+    "lat": 33.027436,
+    "lng": -97.010328,
+    "hours_text": "Jan-Oct 4th Sat, Nov-Dec 2nd Sat, 8am-12pm",
+    "schedule": {
+      "type": "unknown"
+    },
+    "notes": [],
+    "needs_review": true,
+    "id_required": null,
+    "drive_thru": null,
+    "spanish": null,
+    "serves": null,
+    "phone": "(972) 221-5668",
+    "website": null,
+    "date_verified": "2026-09-28"
+  },
+  {
+    "id": "boys-girls-club-lewisville",
+    "name": "Boys & Girls Club Lewisville",
+    "address": "1001 S Edmonds Ln",
+    "city": "Lewisville",
+    "zip": "75067",
+    "lat": 33.036021,
+    "lng": -97.01018,
+    "hours_text": "Tue & Thu 3:30-6pm (appointment)",
+    "schedule": {
+      "type": "scheduled",
+      "rules": [
+        {
+          "days": [
+            "tue",
+            "thu"
+          ],
+          "appointment": true,
+          "windows": [
+            {
+              "start": "15:30",
+              "end": "18:00"
+            }
+          ]
+        }
+      ]
+    },
+    "notes": [],
+    "needs_review": false,
+    "id_required": null,
+    "drive_thru": null,
+    "spanish": null,
+    "serves": null,
+    "phone": "(817) 442-7278",
+    "website": null,
+    "date_verified": "2026-09-28"
+  },
+  {
+    "id": "heart-of-the-city-carrollton-mobile",
+    "name": "Heart of the City Carrollton (mobile)",
+    "address": "1407 Walnut St",
+    "city": "Carrollton",
+    "zip": "75006",
+    "lat": 32.955243,
+    "lng": -96.902886,
+    "hours_text": "2nd & 4th Sat 9-11am, no appointment",
+    "schedule": {
+      "type": "scheduled",
+      "rules": [
+        {
+          "days": [
+            "sat"
+          ],
+          "weeks": [
+            2,
+            4
+          ],
+          "windows": [
+            {
+              "start": "09:00",
+              "end": "11:00"
+            }
+          ]
+        }
+      ]
+    },
+    "notes": [],
+    "needs_review": false,
+    "id_required": false,
+    "drive_thru": true,
+    "spanish": null,
+    "serves": null,
+    "phone": "(972) 824-6171",
+    "website": "https://heartofthecitylewisville.com/locations",
+    "date_verified": "2026-09-28"
+  },
+  {
+    "id": "metrocrest-services",
+    "name": "Metrocrest Services",
+    "address": "1145 N Josey Ln",
+    "city": "Carrollton",
+    "zip": "75006",
+    "lat": 32.955351,
+    "lng": -96.890325,
+    "hours_text": "Mon-Fri 8:30am-3pm; Sat 9am-1pm",
+    "schedule": {
+      "type": "scheduled",
+      "rules": [
+        {
+          "days": [
+            "mon",
+            "tue",
+            "wed",
+            "thu",
+            "fri"
+          ],
+          "windows": [
+            {
+              "start": "08:30",
+              "end": "15:00"
+            }
+          ]
+        },
+        {
+          "days": [
+            "sat"
+          ],
+          "windows": [
+            {
+              "start": "09:00",
+              "end": "13:00"
+            }
+          ]
+        }
+      ]
+    },
+    "notes": [],
+    "needs_review": false,
+    "id_required": true,
+    "drive_thru": null,
+    "spanish": null,
+    "serves": "Carrollton, Addison, Farmers Branch, Coppell, 75287",
+    "phone": "(972) 446-2100",
+    "website": "https://metrocrestservices.org",
+    "date_verified": null
+  },
+  {
+    "id": "heartland-church-grace-bridge",
+    "name": "Heartland Church (Grace Bridge)",
+    "address": "4020 Nazarene Dr",
+    "city": "Carrollton",
+    "zip": "75010",
+    "lat": 33.01408,
+    "lng": -96.944021,
+    "hours_text": "1st Sat 11am-1pm",
+    "schedule": {
+      "type": "scheduled",
+      "rules": [
+        {
+          "days": [
+            "sat"
+          ],
+          "weeks": [
+            1
+          ],
+          "windows": [
+            {
+              "start": "11:00",
+              "end": "13:00"
+            }
+          ]
+        }
+      ]
+    },
+    "notes": [],
+    "needs_review": false,
+    "id_required": null,
+    "drive_thru": true,
+    "spanish": null,
+    "serves": "Collin/Denton/Grayson county",
+    "phone": "(972) 253-4797",
+    "website": null,
+    "date_verified": null
+  },
+  {
+    "id": "lake-dallas-community-pantry",
+    "name": "Lake Dallas community pantry",
+    "address": "300 E Hundley Dr",
+    "city": "Lake Dallas",
+    "zip": "75065",
+    "lat": 33.122509,
+    "lng": -97.025496,
+    "hours_text": "Tue & Thu 10am-1pm; 1st Sat 10am-12pm",
+    "schedule": {
+      "type": "scheduled",
+      "rules": [
+        {
+          "days": [
+            "tue",
+            "thu"
+          ],
+          "windows": [
+            {
+              "start": "10:00",
+              "end": "13:00"
+            }
+          ]
+        },
+        {
+          "days": [
+            "sat"
+          ],
+          "weeks": [
+            1
+          ],
+          "windows": [
+            {
+              "start": "10:00",
+              "end": "12:00"
+            }
+          ]
+        }
+      ]
+    },
+    "notes": [],
+    "needs_review": false,
+    "id_required": null,
+    "drive_thru": null,
+    "spanish": null,
+    "serves": null,
+    "phone": "(940) 321-6100",
+    "website": null,
+    "date_verified": null
+  },
+  {
+    "id": "salvation-army-denton",
+    "name": "Salvation Army Denton",
+    "address": "1508 E McKinney St",
+    "city": "Denton",
+    "zip": "76201",
+    "lat": 33.215787,
+    "lng": -97.113428,
+    "hours_text": "Wed & Fri 9:30-11:30am (drive-through)",
+    "schedule": {
+      "type": "scheduled",
+      "rules": [
+        {
+          "days": [
+            "wed",
+            "fri"
+          ],
+          "windows": [
+            {
+              "start": "09:30",
+              "end": "11:30"
+            }
+          ]
+        }
+      ]
+    },
+    "notes": [
+      "drive-through"
+    ],
+    "needs_review": false,
+    "id_required": null,
+    "drive_thru": true,
+    "spanish": null,
+    "serves": null,
+    "phone": "(940) 566-3800",
+    "website": "https://salvationarmyntx.org/north-texas/alleviate-hunger/",
+    "date_verified": "2026-09-28"
+  },
+  {
+    "id": "denton-community-food-center",
+    "name": "Denton Community Food Center",
+    "address": "306 N Loop 288 Suite 400",
+    "city": "Denton",
+    "zip": "76209",
+    "lat": null,
+    "lng": null,
+    "hours_text": "Mon & Wed 10:30am-12:15pm, appointment only; 1 visit/month",
+    "schedule": {
+      "type": "scheduled",
+      "rules": [
+        {
+          "days": [
+            "mon",
+            "wed"
+          ],
+          "appointment": true,
+          "windows": [
+            {
+              "start": "10:30",
+              "end": "12:15"
+            }
+          ]
+        }
+      ]
+    },
+    "notes": [
+      "1 visit/month"
+    ],
+    "needs_review": false,
+    "id_required": null,
+    "drive_thru": null,
+    "spanish": true,
+    "serves": null,
+    "phone": "(940) 382-0807",
+    "website": "https://www.dentoncfc.org/",
+    "date_verified": "2026-09-28"
+  },
+  {
+    "id": "first-refuge-ministries",
+    "name": "First Refuge Ministries",
+    "address": "1701 Broadway St",
+    "city": "Denton",
+    "zip": "76201",
+    "lat": 33.222493,
+    "lng": -97.149928,
+    "hours_text": "Mon 9-11:45am; Wed 1-3:45pm; Thu 6-7:45pm; once/30 days",
+    "schedule": {
+      "type": "scheduled",
+      "rules": [
+        {
+          "days": [
+            "mon"
+          ],
+          "windows": [
+            {
+              "start": "09:00",
+              "end": "11:45"
+            }
+          ]
+        },
+        {
+          "days": [
+            "wed"
+          ],
+          "windows": [
+            {
+              "start": "13:00",
+              "end": "15:45"
+            }
+          ]
+        },
+        {
+          "days": [
+            "thu"
+          ],
+          "windows": [
+            {
+              "start": "18:00",
+              "end": "19:45"
+            }
+          ]
+        }
+      ]
+    },
+    "notes": [
+      "once/30 days"
+    ],
+    "needs_review": false,
+    "id_required": null,
+    "drive_thru": null,
+    "spanish": null,
+    "serves": null,
+    "phone": "(940) 484-4384",
+    "website": null,
+    "date_verified": "2026-09-28"
+  },
+  {
+    "id": "vision-ministries",
+    "name": "Vision Ministries",
+    "address": "626 Wainwright St",
+    "city": "Denton",
+    "zip": "76201",
+    "lat": 33.208968,
+    "lng": -97.131707,
+    "hours_text": "Mon-Thu 12-4pm",
+    "schedule": {
+      "type": "scheduled",
+      "rules": [
+        {
+          "days": [
+            "mon",
+            "tue",
+            "wed",
+            "thu"
+          ],
+          "windows": [
+            {
+              "start": "12:00",
+              "end": "16:00"
+            }
+          ]
+        }
+      ]
+    },
+    "notes": [],
+    "needs_review": false,
+    "id_required": null,
+    "drive_thru": null,
+    "spanish": null,
+    "serves": null,
+    "phone": "(940) 297-6860",
+    "website": null,
+    "date_verified": null
+  },
+  {
+    "id": "denton-freedom-house-food-pantry",
+    "name": "Denton Freedom House Food Pantry",
+    "address": "1123 Fort Worth Dr",
+    "city": "Denton",
+    "zip": "76205",
+    "lat": 33.192409,
+    "lng": -97.140057,
+    "hours_text": "Mon-Thu 1-4pm; Fri 11am-2pm",
+    "schedule": {
+      "type": "scheduled",
+      "rules": [
+        {
+          "days": [
+            "mon",
+            "tue",
+            "wed",
+            "thu"
+          ],
+          "windows": [
+            {
+              "start": "13:00",
+              "end": "16:00"
+            }
+          ]
+        },
+        {
+          "days": [
+            "fri"
+          ],
+          "windows": [
+            {
+              "start": "11:00",
+              "end": "14:00"
+            }
+          ]
+        }
+      ]
+    },
+    "notes": [],
+    "needs_review": false,
+    "id_required": null,
+    "drive_thru": null,
+    "spanish": null,
+    "serves": null,
+    "phone": "(940) 808-1016",
+    "website": null,
+    "date_verified": null
+  },
+  {
+    "id": "asbury-relief-ministry-arm",
+    "name": "Asbury Relief Ministry (ARM)",
+    "address": "117 Hercules Ln",
+    "city": "Denton",
+    "zip": "76201",
+    "lat": 33.25498,
+    "lng": -97.130251,
+    "hours_text": "1st/3rd Mon 6-7:30pm; 2nd/4th Mon 10am-12pm",
+    "schedule": {
+      "type": "scheduled",
+      "rules": [
+        {
+          "days": [
+            "mon"
+          ],
+          "weeks": [
+            1,
+            3
+          ],
+          "windows": [
+            {
+              "start": "18:00",
+              "end": "19:30"
+            }
+          ]
+        },
+        {
+          "days": [
+            "mon"
+          ],
+          "weeks": [
+            2,
+            4
+          ],
+          "windows": [
+            {
+              "start": "10:00",
+              "end": "12:00"
+            }
+          ]
+        }
+      ]
+    },
+    "notes": [],
+    "needs_review": false,
+    "id_required": null,
+    "drive_thru": null,
+    "spanish": null,
+    "serves": null,
+    "phone": "(940) 387-6487",
+    "website": null,
+    "date_verified": "2026-09-28"
+  },
+  {
+    "id": "denton-wesley-foundation",
+    "name": "Denton Wesley Foundation",
+    "address": "1501 Maple St",
+    "city": "Denton",
+    "zip": "76201",
+    "lat": 33.208193,
+    "lng": -97.148609,
+    "hours_text": "Thu 11am-2pm or appointment",
+    "schedule": {
+      "type": "scheduled",
+      "rules": [
+        {
+          "days": [
+            "thu"
+          ],
+          "windows": [
+            {
+              "start": "11:00",
+              "end": "14:00"
+            }
+          ]
+        }
+      ],
+      "appointment_available": true
+    },
+    "notes": [],
+    "needs_review": false,
+    "id_required": null,
+    "drive_thru": null,
+    "spanish": null,
+    "serves": null,
+    "phone": "(940) 382-3813",
+    "website": null,
+    "date_verified": "2026-09-28"
+  },
+  {
+    "id": "living-water-ministry-lifegate-church",
+    "name": "Living Water Ministry - Lifegate Church",
+    "address": "3350 Deerwood Pkwy",
+    "city": "Denton",
+    "zip": "76208",
+    "lat": 33.249391,
+    "lng": -97.091883,
+    "hours_text": "Tue 9am-12pm, appointment only",
+    "schedule": {
+      "type": "scheduled",
+      "rules": [
+        {
+          "days": [
+            "tue"
+          ],
+          "appointment": true,
+          "windows": [
+            {
+              "start": "09:00",
+              "end": "12:00"
+            }
+          ]
+        }
+      ]
+    },
+    "notes": [],
+    "needs_review": false,
+    "id_required": null,
+    "drive_thru": null,
+    "spanish": null,
+    "serves": null,
+    "phone": "(940) 382-8500",
+    "website": null,
+    "date_verified": null
+  },
+  {
+    "id": "grace-bridge-denton",
+    "name": "Grace Bridge Denton",
+    "address": "5800 N Interstate 35 Suite 303",
+    "city": "Denton",
+    "zip": "76207",
+    "lat": 33.251877,
+    "lng": -97.176862,
+    "hours_text": "3rd Sat 10-11am",
+    "schedule": {
+      "type": "scheduled",
+      "rules": [
+        {
+          "days": [
+            "sat"
+          ],
+          "weeks": [
+            3
+          ],
+          "windows": [
+            {
+              "start": "10:00",
+              "end": "11:00"
+            }
+          ]
+        }
+      ]
+    },
+    "notes": [],
+    "needs_review": false,
+    "id_required": null,
+    "drive_thru": true,
+    "spanish": null,
+    "serves": "Collin/Denton/Grayson county",
+    "phone": "(940) 243-5433",
+    "website": null,
+    "date_verified": null
+  },
+  {
+    "id": "neighbors-nourishing-neighbors-n3",
+    "name": "Neighbors Nourishing Neighbors (N3)",
+    "address": "3125 S Coit Rd Bldg 170",
+    "city": "Celina",
+    "zip": "75009",
+    "lat": null,
+    "lng": null,
+    "hours_text": "Tue & Thu 9am-3pm; Sat 9am-1pm; appointment",
+    "schedule": {
+      "type": "unknown"
+    },
+    "notes": [],
+    "needs_review": true,
+    "id_required": null,
+    "drive_thru": null,
+    "spanish": null,
+    "serves": "Prosper, Celina + nearby",
+    "phone": "(469) 296-8877",
+    "website": "https://www.n3foodpantry.org/",
+    "date_verified": "2026-09-28"
+  },
+  {
+    "id": "grace-bridge-celina",
+    "name": "Grace Bridge Celina",
+    "address": "319 W Walnut St",
+    "city": "Celina",
+    "zip": "75009",
+    "lat": 33.324059,
+    "lng": -96.786599,
+    "hours_text": "1st & 3rd Sat 9am-12pm, appointment",
+    "schedule": {
+      "type": "scheduled",
+      "rules": [
+        {
+          "days": [
+            "sat"
+          ],
+          "weeks": [
+            1,
+            3
+          ],
+          "appointment": true,
+          "windows": [
+            {
+              "start": "09:00",
+              "end": "12:00"
+            }
+          ]
+        }
+      ]
+    },
+    "notes": [],
+    "needs_review": false,
+    "id_required": null,
+    "drive_thru": true,
+    "spanish": null,
+    "serves": "Collin/Denton/Grayson county",
+    "phone": "(214) 425-9423",
+    "website": null,
+    "date_verified": "2026-09-28"
+  },
+  {
+    "id": "community-food-pantry-of-mckinney",
+    "name": "Community Food Pantry of McKinney",
+    "address": "307 Smith St",
+    "city": "McKinney",
+    "zip": "75069",
+    "lat": null,
+    "lng": null,
+    "hours_text": "Mon-Wed 11am-3:30pm; Thu 11am-6:30pm; Fri 10am-12:30pm",
+    "schedule": {
+      "type": "scheduled",
+      "rules": [
+        {
+          "days": [
+            "mon",
+            "tue",
+            "wed"
+          ],
+          "windows": [
+            {
+              "start": "11:00",
+              "end": "15:30"
+            }
+          ]
+        },
+        {
+          "days": [
+            "thu"
+          ],
+          "windows": [
+            {
+              "start": "11:00",
+              "end": "18:30"
+            }
+          ]
+        },
+        {
+          "days": [
+            "fri"
+          ],
+          "windows": [
+            {
+              "start": "10:00",
+              "end": "12:30"
+            }
+          ]
+        }
+      ]
+    },
+    "notes": [],
+    "needs_review": false,
+    "id_required": true,
+    "drive_thru": null,
+    "spanish": null,
+    "serves": "McKinney, Anna, Melissa, Princeton",
+    "phone": "(972) 547-4404",
+    "website": "https://www.community-foodpantry.org/",
+    "date_verified": "2026-09-28"
+  },
+  {
+    "id": "the-samaritan-inn-food-pantry",
+    "name": "The Samaritan Inn Food Pantry",
+    "address": "1601 N Waddill St Suite 102",
+    "city": "McKinney",
+    "zip": "75069",
+    "lat": 33.212388,
+    "lng": -96.625831,
+    "hours_text": "Tue-Thu 10am-2:45pm (closed 1-1:30); Fri 9am-1:45pm",
+    "schedule": {
+      "type": "unknown"
+    },
+    "notes": [],
+    "needs_review": true,
+    "id_required": true,
+    "drive_thru": null,
+    "spanish": true,
+    "serves": "McKinney",
+    "phone": "(972) 542-5302",
+    "website": "https://saminn.org/food-pantry/",
+    "date_verified": "2026-09-28"
+  },
+  {
+    "id": "salvation-army-mckinney",
+    "name": "Salvation Army McKinney",
+    "address": "600 Wilson Creek Pkwy",
+    "city": "McKinney",
+    "zip": "75069",
+    "lat": 33.185774,
+    "lng": -96.624715,
+    "hours_text": "Mon & Wed 9:30-11:30am",
+    "schedule": {
+      "type": "scheduled",
+      "rules": [
+        {
+          "days": [
+            "mon",
+            "wed"
+          ],
+          "windows": [
+            {
+              "start": "09:30",
+              "end": "11:30"
+            }
+          ]
+        }
+      ]
+    },
+    "notes": [],
+    "needs_review": false,
+    "id_required": null,
+    "drive_thru": null,
+    "spanish": null,
+    "serves": null,
+    "phone": "(972) 542-6694",
+    "website": "https://salvationarmyntx.org/north-texas/alleviate-hunger/",
+    "date_verified": "2026-09-28"
+  },
+  {
+    "id": "mckinney-first-baptist-church-mobile",
+    "name": "McKinney First Baptist Church (mobile)",
+    "address": "401 W Erwin Ave",
+    "city": "McKinney",
+    "zip": "75069",
+    "lat": 33.207752,
+    "lng": -96.612877,
+    "hours_text": "3rd Sat 9-11am",
+    "schedule": {
+      "type": "scheduled",
+      "rules": [
+        {
+          "days": [
+            "sat"
+          ],
+          "weeks": [
+            3
+          ],
+          "windows": [
+            {
+              "start": "09:00",
+              "end": "11:00"
+            }
+          ]
+        }
+      ]
+    },
+    "notes": [],
+    "needs_review": false,
+    "id_required": false,
+    "drive_thru": null,
+    "spanish": null,
+    "serves": null,
+    "phone": null,
+    "website": null,
+    "date_verified": "2026-09-28"
+  },
+  {
+    "id": "mckinney-little-free-pantry",
+    "name": "McKinney Little Free Pantry",
+    "address": "110 E Davis St",
+    "city": "McKinney",
+    "zip": "75069",
+    "lat": 33.195965,
+    "lng": -96.613115,
+    "hours_text": "24/7 take what you need",
+    "schedule": {
+      "type": "always_open"
+    },
+    "notes": [],
+    "needs_review": false,
+    "id_required": false,
+    "drive_thru": null,
+    "spanish": null,
+    "serves": null,
+    "phone": null,
+    "website": null,
+    "date_verified": null
+  },
+  {
+    "id": "revolution-church-food-pantry",
+    "name": "Revolution Church Food Pantry",
+    "address": null,
+    "city": "McKinney",
+    "zip": "75070",
+    "lat": null,
+    "lng": null,
+    "hours_text": "1st Sat of month",
+    "schedule": {
+      "type": "unknown"
+    },
+    "notes": [],
+    "needs_review": true,
+    "id_required": null,
+    "drive_thru": null,
+    "spanish": null,
+    "serves": null,
+    "phone": "(214) 856-4338",
+    "website": null,
+    "date_verified": null
+  },
+  {
+    "id": "all-community-outreach-aco",
+    "name": "All Community Outreach (ACO)",
+    "address": "801 E Main St",
+    "city": "Allen",
+    "zip": "75002",
+    "lat": 33.100553,
+    "lng": -96.652653,
+    "hours_text": "Tue & Thu 9am-6pm; Fri 12-2pm curbside; appointment",
+    "schedule": {
+      "type": "unknown"
+    },
+    "notes": [],
+    "needs_review": true,
+    "id_required": true,
+    "drive_thru": true,
+    "spanish": null,
+    "serves": "Collin County",
+    "phone": "(972) 727-9131",
+    "website": "https://www.acocares.org/need-help/",
+    "date_verified": "2026-09-28"
+  },
+  {
+    "id": "allen-food-pantry-st-jude",
+    "name": "Allen Food Pantry (St. Jude)",
+    "address": "1515 N Greenville Ave",
+    "city": "Allen",
+    "zip": "75002",
+    "lat": 33.118707,
+    "lng": -96.65091,
+    "hours_text": "Mon & Thu 6:30-8pm; Tue & Fri 9:30-11:30am; Sat 9:30am-12pm",
+    "schedule": {
+      "type": "scheduled",
+      "rules": [
+        {
+          "days": [
+            "mon",
+            "thu"
+          ],
+          "windows": [
+            {
+              "start": "18:30",
+              "end": "20:00"
+            }
+          ]
+        },
+        {
+          "days": [
+            "tue",
+            "fri"
+          ],
+          "windows": [
+            {
+              "start": "09:30",
+              "end": "11:30"
+            }
+          ]
+        },
+        {
+          "days": [
+            "sat"
+          ],
+          "windows": [
+            {
+              "start": "09:30",
+              "end": "12:00"
+            }
+          ]
+        }
+      ]
+    },
+    "notes": [],
+    "needs_review": false,
+    "id_required": null,
+    "drive_thru": null,
+    "spanish": true,
+    "serves": "Allen, Fairview, Lucas",
+    "phone": null,
+    "website": null,
+    "date_verified": null
+  },
+  {
+    "id": "first-baptist-church-allen",
+    "name": "First Baptist Church Allen",
+    "address": "201 E McDermott Dr",
+    "city": "Allen",
+    "zip": "75002",
+    "lat": 33.101072,
+    "lng": -96.668643,
+    "hours_text": "Tue 10-11:30am; Wed 6-7:30pm; Sun 4-5:30pm",
+    "schedule": {
+      "type": "scheduled",
+      "rules": [
+        {
+          "days": [
+            "tue"
+          ],
+          "windows": [
+            {
+              "start": "10:00",
+              "end": "11:30"
+            }
+          ]
+        },
+        {
+          "days": [
+            "wed"
+          ],
+          "windows": [
+            {
+              "start": "18:00",
+              "end": "19:30"
+            }
+          ]
+        },
+        {
+          "days": [
+            "sun"
+          ],
+          "windows": [
+            {
+              "start": "16:00",
+              "end": "17:30"
+            }
+          ]
+        }
+      ]
+    },
+    "notes": [],
+    "needs_review": false,
+    "id_required": null,
+    "drive_thru": null,
+    "spanish": null,
+    "serves": "Allen, Fairview, Lucas",
+    "phone": "(972) 727-8241",
+    "website": null,
+    "date_verified": null
+  },
+  {
+    "id": "minnie-s-food-pantry",
+    "name": "Minnie's Food Pantry",
+    "address": "661 18th St Suite 116",
+    "city": "Plano",
+    "zip": "75074",
+    "lat": 33.024243,
+    "lng": -96.707052,
+    "hours_text": "Wed-Sat 8:30-11:30am; closed 5th Sat",
+    "schedule": {
+      "type": "unknown"
+    },
+    "notes": [],
+    "needs_review": true,
+    "id_required": true,
+    "drive_thru": null,
+    "spanish": null,
+    "serves": "Collin & Denton county",
+    "phone": "(972) 596-0253",
+    "website": "https://minniesfoodpantry.org/get-help/",
+    "date_verified": "2026-09-28"
+  },
+  {
+    "id": "storehouse-of-collin-county",
+    "name": "Storehouse of Collin County",
+    "address": "1401 Mira Vista Blvd",
+    "city": "Plano",
+    "zip": "75093",
+    "lat": 33.021639,
+    "lng": -96.819307,
+    "hours_text": "Tue & Thu 3:30-5pm; Wed 5:30-7pm (schedule online)",
+    "schedule": {
+      "type": "unknown"
+    },
+    "notes": [],
+    "needs_review": true,
+    "id_required": true,
+    "drive_thru": null,
+    "spanish": null,
+    "serves": null,
+    "phone": "(469) 385-1813",
+    "website": null,
+    "date_verified": "2026-09-28"
+  },
+  {
+    "id": "seven-loaves-food-pantry",
+    "name": "Seven Loaves Food Pantry",
+    "address": "5801 W Plano Pkwy",
+    "city": "Plano",
+    "zip": "75093",
+    "lat": 33.016842,
+    "lng": -96.819392,
+    "hours_text": "Thu 4-7pm",
+    "schedule": {
+      "type": "scheduled",
+      "rules": [
+        {
+          "days": [
+            "thu"
+          ],
+          "windows": [
+            {
+              "start": "16:00",
+              "end": "19:00"
+            }
+          ]
+        }
+      ]
+    },
+    "notes": [],
+    "needs_review": false,
+    "id_required": true,
+    "drive_thru": null,
+    "spanish": null,
+    "serves": null,
+    "phone": "(469) 385-1813",
+    "website": null,
+    "date_verified": null
+  },
+  {
+    "id": "salvation-army-plano",
+    "name": "Salvation Army Plano",
+    "address": "3528 E 14th St",
+    "city": "Plano",
+    "zip": "75074",
+    "lat": 33.01459,
+    "lng": -96.667387,
+    "hours_text": "Mon, Wed, Fri 9am-1pm",
+    "schedule": {
+      "type": "scheduled",
+      "rules": [
+        {
+          "days": [
+            "mon",
+            "wed",
+            "fri"
+          ],
+          "windows": [
+            {
+              "start": "09:00",
+              "end": "13:00"
+            }
+          ]
+        }
+      ]
+    },
+    "notes": [],
+    "needs_review": false,
+    "id_required": null,
+    "drive_thru": null,
+    "spanish": null,
+    "serves": null,
+    "phone": "(972) 423-8254",
+    "website": "https://salvationarmyntx.org/north-texas/alleviate-hunger/",
+    "date_verified": "2026-09-28"
+  },
+  {
+    "id": "plano-food-pantry-holy-nativity",
+    "name": "Plano Food Pantry - Holy Nativity",
+    "address": "2200 E 18th St",
+    "city": "Plano",
+    "zip": "75074",
+    "lat": 33.023965,
+    "lng": -96.68188,
+    "hours_text": "Mon-Fri 8:30am-4:30pm",
+    "schedule": {
+      "type": "scheduled",
+      "rules": [
+        {
+          "days": [
+            "mon",
+            "tue",
+            "wed",
+            "thu",
+            "fri"
+          ],
+          "windows": [
+            {
+              "start": "08:30",
+              "end": "16:30"
+            }
+          ]
+        }
+      ]
+    },
+    "notes": [],
+    "needs_review": false,
+    "id_required": true,
+    "drive_thru": null,
+    "spanish": null,
+    "serves": "Plano ISD residents",
+    "phone": null,
+    "website": null,
+    "date_verified": "2026-09-28"
+  },
+  {
+    "id": "assistance-center-of-collin-county",
+    "name": "Assistance Center of Collin County",
+    "address": "900 18th St",
+    "city": "Plano",
+    "zip": "75074",
+    "lat": 33.023833,
+    "lng": -96.702729,
+    "hours_text": "Mon-Fri 9am-4pm",
+    "schedule": {
+      "type": "scheduled",
+      "rules": [
+        {
+          "days": [
+            "mon",
+            "tue",
+            "wed",
+            "thu",
+            "fri"
+          ],
+          "windows": [
+            {
+              "start": "09:00",
+              "end": "16:00"
+            }
+          ]
+        }
+      ]
+    },
+    "notes": [],
+    "needs_review": false,
+    "id_required": true,
+    "drive_thru": null,
+    "spanish": null,
+    "serves": "Plano, Wylie",
+    "phone": "(972) 422-1850",
+    "website": null,
+    "date_verified": null
+  },
+  {
+    "id": "ac-food-pantry-thrift-store",
+    "name": "AC Food Pantry & Thrift Store",
+    "address": null,
+    "city": "Plano",
+    "zip": "75074",
+    "lat": null,
+    "lng": null,
+    "hours_text": "Mon-Fri 10am-1pm",
+    "schedule": {
+      "type": "scheduled",
+      "rules": [
+        {
+          "days": [
+            "mon",
+            "tue",
+            "wed",
+            "thu",
+            "fri"
+          ],
+          "windows": [
+            {
+              "start": "10:00",
+              "end": "13:00"
+            }
+          ]
+        }
+      ]
+    },
+    "notes": [],
+    "needs_review": false,
+    "id_required": true,
+    "drive_thru": null,
+    "spanish": null,
+    "serves": "Collin County",
+    "phone": "(972) 578-5730",
+    "website": null,
+    "date_verified": null
+  },
+  {
+    "id": "god-s-food-pantry",
+    "name": "God's Food Pantry",
+    "address": null,
+    "city": "Plano",
+    "zip": "75074",
+    "lat": null,
+    "lng": null,
+    "hours_text": "Tue-Sat 9am-12pm",
+    "schedule": {
+      "type": "scheduled",
+      "rules": [
+        {
+          "days": [
+            "tue",
+            "wed",
+            "thu",
+            "fri",
+            "sat"
+          ],
+          "windows": [
+            {
+              "start": "09:00",
+              "end": "12:00"
+            }
+          ]
+        }
+      ]
+    },
+    "notes": [],
+    "needs_review": false,
+    "id_required": null,
+    "drive_thru": null,
+    "spanish": null,
+    "serves": null,
+    "phone": "(972) 633-9777",
+    "website": null,
+    "date_verified": null
+  },
+  {
+    "id": "life-source-inc",
+    "name": "Life Source Inc.",
+    "address": null,
+    "city": "Plano",
+    "zip": "75074",
+    "lat": null,
+    "lng": null,
+    "hours_text": "Tue & Thu 10am-2pm",
+    "schedule": {
+      "type": "scheduled",
+      "rules": [
+        {
+          "days": [
+            "tue",
+            "thu"
+          ],
+          "windows": [
+            {
+              "start": "10:00",
+              "end": "14:00"
+            }
+          ]
+        }
+      ]
+    },
+    "notes": [],
+    "needs_review": false,
+    "id_required": null,
+    "drive_thru": null,
+    "spanish": null,
+    "serves": null,
+    "phone": null,
+    "website": null,
+    "date_verified": null
+  },
+  {
+    "id": "christ-umc-corner-pantry",
+    "name": "Christ UMC Corner Pantry",
+    "address": "3101 Coit Rd",
+    "city": "Plano",
+    "zip": "75075",
+    "lat": 33.039384,
+    "lng": -96.770153,
+    "hours_text": "Call for hours",
+    "schedule": {
+      "type": "unknown"
+    },
+    "notes": [],
+    "needs_review": false,
+    "id_required": null,
+    "drive_thru": null,
+    "spanish": null,
+    "serves": null,
+    "phone": null,
+    "website": "https://cumc.com/events/corner-pantry/",
+    "date_verified": null
+  },
+  {
+    "id": "amazing-grace-food-pantry",
+    "name": "Amazing Grace Food Pantry",
+    "address": "1711 Parker Rd",
+    "city": "Wylie",
+    "zip": "75098",
+    "lat": 33.039607,
+    "lng": -96.5504,
+    "hours_text": "Call for hours",
+    "schedule": {
+      "type": "unknown"
+    },
+    "notes": [],
+    "needs_review": false,
+    "id_required": null,
+    "drive_thru": null,
+    "spanish": null,
+    "serves": null,
+    "phone": "(972) 292-7241",
+    "website": "https://www.amazinggracepantry.org",
+    "date_verified": null
+  },
+  {
+    "id": "local-good-center",
+    "name": "Local Good Center",
+    "address": "2201 K Ave",
+    "city": "Plano",
+    "zip": "75074",
+    "lat": 33.02848,
+    "lng": -96.699299,
+    "hours_text": "Call ahead for hours",
+    "schedule": {
+      "type": "unknown"
+    },
+    "notes": [],
+    "needs_review": false,
+    "id_required": null,
+    "drive_thru": null,
+    "spanish": null,
+    "serves": null,
+    "phone": null,
+    "website": null,
+    "date_verified": null
+  },
+  {
+    "id": "lovepacs-pantry-kids-school-breaks",
+    "name": "Lovepacs pantry (kids, school breaks)",
+    "address": "520 Lobo Ln",
+    "city": "Little Elm",
+    "zip": "75068",
+    "lat": 33.152212,
+    "lng": -96.942882,
+    "hours_text": "Mon & Fri 10am-4pm",
+    "schedule": {
+      "type": "scheduled",
+      "rules": [
+        {
+          "days": [
+            "mon",
+            "fri"
+          ],
+          "windows": [
+            {
+              "start": "10:00",
+              "end": "16:00"
+            }
+          ]
+        }
+      ]
+    },
+    "notes": [],
+    "needs_review": false,
+    "id_required": null,
+    "drive_thru": null,
+    "spanish": null,
+    "serves": "Frisco ISD / LISD students",
+    "phone": null,
+    "website": "https://lovepacs.org",
+    "date_verified": null
+  }
+]

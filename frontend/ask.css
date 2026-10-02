@@ -1,0 +1,120 @@
+/* Ask page: a simple chat. Shared colors, top bar, and bottom nav come from style.css. */
+
+/* Room at the bottom for the composer (~92px) + the bottom nav (64px). */
+.ask-page { padding-bottom: calc(160px + env(safe-area-inset-bottom)); }
+
+.chat {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 16px;
+  display: grid; gap: 16px;
+}
+
+/* ---------- intro + starter questions ---------- */
+
+.intro { padding: 18px; display: grid; gap: 10px; }
+.intro p { margin: 0; }
+.intro-es { color: var(--muted); font-size: 0.92rem; }
+.intro h2 { font-size: 0.95rem; margin-top: 6px; color: var(--muted); font-weight: 600; }
+
+.starters { display: grid; gap: 8px; }
+.starter {
+  min-height: var(--tap);
+  padding: 10px 14px;
+  text-align: left;
+  font: inherit; font-size: 0.97rem;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border: 1.5px solid transparent;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.starter:hover { border-color: var(--accent); }
+
+/* ---------- messages ---------- */
+
+.messages { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+
+.msg { display: flex; }
+.msg.user { justify-content: flex-end; }
+
+.bubble {
+  max-width: 88%;
+  padding: 12px 15px;
+  border-radius: 18px;
+  white-space: pre-line;      /* keep the line breaks in answers */
+  overflow-wrap: anywhere;
+}
+.user .bubble { background: var(--accent); color: #fff; border-bottom-right-radius: 6px; }
+.assistant .bubble {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-bottom-left-radius: 6px;
+  box-shadow: var(--shadow);
+}
+.error .bubble { background: #fff7e6; border: 1px solid #f0d9a8; }
+
+.sources {
+  margin: 12px 0 0; padding: 10px 0 0;
+  border-top: 1px solid var(--border);
+  list-style: none;
+  display: grid; gap: 6px;
+  white-space: normal;
+  font-size: 0.88rem;
+}
+.sources-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+.sources a { display: inline-flex; gap: 6px; align-items: baseline; }
+.sources .num {
+  flex: none;
+  display: inline-grid; place-items: center;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--accent-soft); color: var(--accent);
+  font-size: 0.75rem; font-weight: 700;
+}
+
+/* "Looking through sources…" dots */
+.thinking { display: inline-flex; gap: 5px; padding: 4px 0; }
+.thinking span {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--muted);
+  animation: blink 1.2s infinite ease-in-out;
+}
+.thinking span:nth-child(2) { animation-delay: 0.2s; }
+.thinking span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes blink { 0%, 80%, 100% { opacity: 0.25; } 40% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .thinking span { animation: none; opacity: 0.6; } }
+
+/* ---------- composer (sits just above the bottom nav) ---------- */
+
+.composer {
+  position: fixed; left: 0; right: 0; z-index: 1050;
+  bottom: calc(64px + env(safe-area-inset-bottom));
+  display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: end;
+  padding: 10px max(16px, calc((100vw - 720px) / 2 + 16px)) 6px;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+}
+.composer textarea {
+  resize: none;
+  overflow-y: hidden;          /* ask.js turns scrolling on only past max-height */
+  min-height: var(--tap); max-height: 140px;
+  padding: 12px 14px;
+  font: inherit; font-size: 1.05rem; line-height: 1.35;
+  color: var(--text);
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 22px;
+}
+.composer textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+
+.send {
+  width: var(--tap); height: var(--tap);
+  display: grid; place-items: center;
+  border: none; border-radius: 50%;
+  background: var(--accent); color: #fff;
+  cursor: pointer;
+}
+.send svg { width: 22px; height: 22px; }
+.send:disabled { opacity: 0.5; cursor: wait; }
+
+.composer-note { grid-column: 1 / -1; margin: 0; font-size: 0.75rem; color: var(--muted); text-align: center; }

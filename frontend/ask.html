@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ask · PantryPilot</title>
+  <meta name="description" content="Ask questions about SNAP, WIC, school meals, and food pantries in English or Spanish.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%232c6e63'/%3E%3Ccircle cx='16' cy='16' r='6' fill='white'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="ask.css">
+</head>
+<body class="ask-page">
+  <header class="topbar">
+    <div class="brand">
+      <h1>Ask PantryPilot</h1>
+      <p>Food help questions in English or Spanish · Preguntas en inglés o español</p>
+    </div>
+  </header>
+
+  <main class="chat">
+    <section class="card intro" id="intro">
+      <p><strong>I answer only from trusted sources</strong> and show you where each answer came from.
+        I can't tell you if you qualify for a program. For that, contact
+        <a href="https://www.yourtexasbenefits.com" target="_blank" rel="noopener">Texas HHSC</a> or dial <strong>2-1-1</strong>.</p>
+      <p lang="es" class="intro-es">Respondo solo con fuentes confiables. Para saber si califica, comuníquese con Texas HHSC o llame al 2-1-1.</p>
+
+      <h2>Try asking · Pruebe preguntar</h2>
+      <div class="starters">
+        <button type="button" class="starter">How do I apply for SNAP in Texas?</button>
+        <button type="button" class="starter">What does WIC give families?</button>
+        <button type="button" class="starter">Which food pantries in Plano are open today?</button>
+        <button type="button" class="starter" lang="es">¿Cómo solicito los beneficios de SNAP?</button>
+        <button type="button" class="starter" lang="es">¿Qué es WIC y quién puede recibirlo?</button>
+        <button type="button" class="starter" lang="es">¿Qué despensas de comida hay en McKinney?</button>
+      </div>
+    </section>
+
+    <ol id="messages" class="messages" role="log" aria-live="polite" aria-label="Conversation"></ol>
+  </main>
+
+  <form id="composer" class="composer">
+    <label for="question" class="visually-hidden">Your question</label>
+    <textarea id="question" rows="1" maxlength="500" required
+              placeholder="Ask a question · Pregunte aquí"></textarea>
+    <button type="submit" id="send" class="send" aria-label="Send question">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </button>
+    <p class="composer-note">Please don't type your name, case number, or SSN.</p>
+  </form>
+
+  <nav class="bottom-nav" aria-label="Main">
+    <a href="/">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
+      Map
+    </a>
+    <a href="ask.html" aria-current="page">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.8 7L4 20l1.1-4.6A8 8 0 1 1 21 12z"/></svg>
+      Ask
+    </a>
+    <a href="hours.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      Hours
+    </a>
+  </nav>
+
+  <script src="ask.js"></script>
+</body>
+</html>

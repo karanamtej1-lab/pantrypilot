@@ -1,0 +1,295 @@
+/* PantryPilot: mobile-first. Base styles are for phones; wider screens are at the bottom. */
+
+:root {
+  --bg: #f5f6f3;
+  --surface: #ffffff;
+  --text: #1e2a2c;
+  --muted: #5a6668;
+  --border: #dde2dd;
+  --accent: #2c6e63;        /* calm teal for buttons and links */
+  --accent-soft: #e3efec;
+
+  /* Status colors: used for pins, dots, and labels */
+  --open: #2e9b5f;
+  --later: #e2a524;
+  --appointment: #3a76c4;
+  --closed: #8b9398;
+  --unknown: #ffffff;
+
+  --radius: 14px;
+  --tap: 48px;              /* minimum size for anything you tap */
+  --shadow: 0 1px 3px rgba(20, 35, 35, 0.08), 0 4px 14px rgba(20, 35, 35, 0.06);
+}
+
+* { box-sizing: border-box; }
+
+/* The `hidden` attribute must win over any `display:` rule below. */
+[hidden] { display: none !important; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 17px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+a { color: var(--accent); }
+
+h1, h2, h3 { line-height: 1.2; margin: 0; }
+
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- top bar ---------- */
+
+.topbar {
+  position: sticky; top: 0; z-index: 1000;   /* stays above the Leaflet map */
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 16px;
+  display: grid; gap: 10px;
+  grid-template-columns: minmax(0, 1fr);   /* lets rows shrink to the phone's width */
+}
+
+.brand h1 { font-size: 1.3rem; color: var(--accent); }
+.brand p { margin: 0; font-size: 0.9rem; color: var(--muted); }
+
+.search { display: flex; gap: 8px; }
+
+.search input {
+  flex: 1; min-width: 0;
+  height: var(--tap);
+  padding: 0 14px;
+  font-size: 1.05rem;         /* 16px+ stops iPhones from zooming in on focus */
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+}
+.search input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
+
+.btn {
+  height: var(--tap);
+  padding: 0 14px;
+  font: inherit; font-weight: 600;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn:hover { border-color: var(--accent); }
+.btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn-primary:hover { background: #245c53; }
+
+.filters {
+  display: flex; gap: 8px;
+  overflow-x: auto;                 /* chips scroll sideways on small phones */
+  scrollbar-width: none;
+  margin: 0 -16px; padding: 2px 16px;
+}
+.filters::-webkit-scrollbar { display: none; }
+
+.chip {
+  flex: none;
+  min-height: 44px;
+  padding: 0 16px;
+  font: inherit; font-size: 0.95rem; font-weight: 600;
+  border: 1.5px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+}
+.chip[aria-pressed="true"] {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.chip[aria-pressed="true"]::before { content: "✓ "; }
+
+/* ---------- map ---------- */
+
+/* `isolation` keeps Leaflet's own z-index layers inside the map,
+   so they can't float over the sticky top bar when you scroll. */
+.map-wrap { position: relative; isolation: isolate; }
+
+#map {
+  height: 45vh;
+  min-height: 280px;
+  background: #e8ebe6;
+}
+
+.legend {
+  position: absolute; left: 10px; bottom: 10px; z-index: 500;
+  list-style: none; margin: 0; padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  font-size: 0.8rem;
+  display: grid; grid-template-columns: auto auto; gap: 2px 12px;
+}
+.legend li { display: flex; align-items: center; gap: 6px; }
+
+.dot {
+  display: inline-block; flex: none;
+  width: 12px; height: 12px; border-radius: 50%;
+  border: 2px solid rgba(0, 0, 0, 0.15);
+}
+.dot.open { background: var(--open); }
+.dot.later_today { background: var(--later); }
+.dot.appointment { background: var(--appointment); }
+.dot.closed { background: var(--closed); }
+.dot.unknown { background: var(--unknown); border: 2px dashed var(--closed); }
+
+/* ---------- sidebar: message, details card, list ---------- */
+
+.sidebar { padding: 16px; display: grid; gap: 14px; align-content: start; }
+
+.message:empty { display: none; }
+.message {
+  margin: 0; padding: 12px 14px;
+  background: #fff7e6; border: 1px solid #f0d9a8; border-radius: var(--radius);
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.details { padding: 18px; display: grid; gap: 14px; scroll-margin-top: 200px; }
+.details:focus { outline: none; }
+
+.details-head { display: flex; justify-content: space-between; align-items: start; gap: 12px; }
+.details h3 { font-size: 1.25rem; }
+.details .address { margin: 4px 0 0; color: var(--muted); }
+
+.close {
+  flex: none;
+  width: var(--tap); height: var(--tap);
+  margin: -8px -8px 0 0;
+  border: none; border-radius: 50%;
+  background: transparent; color: var(--muted);
+  font-size: 1.6rem; line-height: 1; cursor: pointer;
+}
+.close:hover { background: var(--bg); }
+
+.details h4 {
+  margin: 0 0 4px;
+  font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em;
+  color: var(--muted);
+}
+.details ul { margin: 0; padding-left: 20px; }
+.details p { margin: 0; }
+.listed-as { color: var(--muted); font-size: 0.92rem; margin-top: 4px !important; }
+
+.actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.actions .btn {
+  display: flex; align-items: center; justify-content: center;
+  height: 52px; text-decoration: none;
+}
+.actions .btn:only-child { grid-column: 1 / -1; }
+
+.verified { font-size: 0.88rem; color: var(--muted); }
+
+.status {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 0.88rem; font-weight: 600;
+}
+
+.list-heading { display: flex; align-items: baseline; gap: 8px; font-size: 1.1rem; margin-top: 4px; }
+.count { color: var(--muted); font-weight: 400; font-size: 0.95rem; }
+
+.list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+
+.list-item {
+  width: 100%;
+  display: grid; grid-template-columns: 1fr auto; gap: 4px 12px;
+  padding: 14px 16px;
+  text-align: left; font: inherit; color: inherit;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.list-item:hover { border-color: var(--accent); }
+.list-item[aria-current="true"] { border-color: var(--accent); background: var(--accent-soft); }
+.list-item .name { font-weight: 600; }
+.list-item .distance { font-weight: 600; color: var(--accent); white-space: nowrap; }
+.list-item .sub { grid-column: 1 / -1; font-size: 0.9rem; color: var(--muted); }
+.list-item .status { grid-column: 1 / -1; }
+
+.empty { color: var(--muted); padding: 8px 0; }
+
+.footnote { font-size: 0.8rem; color: var(--muted); margin: 8px 0 24px; }
+
+/* ---------- wider screens: map on the left, list on the right ---------- */
+
+@media (min-width: 900px) {
+  /* Map page = top bar + map/list + nav. The layout takes whatever height is left,
+     so it still fits if the top bar grows (e.g. filter chips wrap to 2 lines). */
+  body.map-page { height: 100vh; display: flex; flex-direction: column; padding-bottom: 0; }
+  .layout { flex: 1; min-height: 0; }
+
+  .map-page .topbar {
+    grid-template-columns: auto minmax(320px, 440px) 1fr;
+    align-items: center; gap: 20px;
+    padding: 12px 20px;
+  }
+  .filters { margin: 0; padding: 2px 0; flex-wrap: wrap; }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr 420px;
+  }
+  #map { height: 100%; }
+  .sidebar { overflow-y: auto; border-left: 1px solid var(--border); }
+}
+
+/* ---------- bottom navigation (every page) ---------- */
+
+/* Phones: fixed to the bottom of the screen, where thumbs reach.
+   The body gets matching padding so the nav never covers content. */
+body { padding-bottom: calc(64px + env(safe-area-inset-bottom)); }
+
+.bottom-nav {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 1100;
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  height: calc(64px + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);   /* room for the iPhone home bar */
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+}
+
+.bottom-nav a {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  font-size: 0.8rem; font-weight: 600;
+  color: var(--muted);
+  text-decoration: none;
+}
+.bottom-nav svg { width: 24px; height: 24px; }
+.bottom-nav a[aria-current="page"] { color: var(--accent); }
+.bottom-nav a:hover { color: var(--accent); }
+
+/* Map page on desktop: the nav sits in the page flow under the map instead. */
+@media (min-width: 900px) {
+  .map-page .bottom-nav { position: static; flex: none; }
+}
+
+/* ---------- simple single-column pages (Hours, Ask) ---------- */
+
+.page {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 16px;
+  display: grid; gap: 16px;
+}
+.page .card { padding: 18px; }
+.page h2 { font-size: 1.1rem; margin-bottom: 12px; }

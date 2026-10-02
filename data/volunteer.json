@@ -1,0 +1,200 @@
+[
+  {
+    "name": "Frisco Family Services Market — Food Pantry Volunteer",
+    "description": "Help accept and sort food donations, stock shelves, check inventory, and assist clients at the Frisco Market. Teens 16–17 may volunteer independently after orientation; ages 11–15 must volunteer with a parent or guardian.",
+    "type": "volunteer",
+    "city": "Frisco",
+    "hours_per_shift": 3,
+    "url": "https://friscofamilyservices.org/get-involved/volunteer/",
+    "phone": "972-335-9495"
+  },
+  {
+    "name": "Frisco Family Services — Donation Sorting",
+    "description": "Sort and process donated clothing, furniture, and household goods for Frisco Resale.",
+    "type": "volunteer",
+    "city": "Frisco",
+    "hours_per_shift": 3,
+    "url": "https://friscofamilyservices.org/get-involved/volunteer/volunteer-opportunities.html",
+    "phone": "972-335-9495"
+  },
+  {
+    "name": "Frisco Family Services — Agency Office",
+    "description": "Provide staff and client support through light office work.",
+    "type": "volunteer",
+    "city": "Frisco",
+    "hours_per_shift": 3,
+    "url": "https://friscofamilyservices.org/get-involved/volunteer/volunteer-opportunities.html",
+    "phone": "972-335-9495"
+  },
+  {
+    "name": "Frisco Family Services — Seasonal Programs",
+    "description": "Help with setup and execution of seasonal client programs and special events.",
+    "type": "volunteer",
+    "city": "Frisco",
+    "hours_per_shift": 3,
+    "url": "https://friscofamilyservices.org/get-involved/volunteer/volunteer-opportunities.html",
+    "phone": "972-335-9495"
+  },
+  {
+    "name": "Minnie's Food Pantry — Pantry Volunteer",
+    "description": "Sort, pack, and help hand out food at the Plano pantry. Each volunteer shift is 4 hours. Volunteers must be at least 16; volunteers under 18 must attend with an adult or guardian.",
+    "type": "volunteer",
+    "city": "Plano",
+    "hours_per_shift": 4,
+    "url": "https://minniesfoodpantry.org/give-time/",
+    "phone": "972-596-0253"
+  },
+  {
+    "name": "Minnie's Food Pantry — Food Packing",
+    "description": "Help pack food bags and prepare pantry distributions. Volunteers must be at least 16; volunteers under 18 must attend with an adult or guardian.",
+    "type": "volunteer",
+    "city": "Plano",
+    "hours_per_shift": 4,
+    "url": "https://minniesfoodpantry.org/give-time/",
+    "phone": "972-596-0253"
+  },
+  {
+    "name": "Minnie's Food Pantry — Food Distribution",
+    "description": "Help distribute food to families at the Plano pantry. Each volunteer shift is 4 hours. Volunteers must be at least 16; volunteers under 18 must attend with an adult or guardian.",
+    "type": "volunteer",
+    "city": "Plano",
+    "hours_per_shift": 4,
+    "url": "https://minniesfoodpantry.org/give-time/",
+    "phone": "972-596-0253"
+  },
+  {
+    "name": "Community Food Pantry of McKinney — Stock Shelves",
+    "description": "Unload deliveries and keep pantry shelves stocked. No prior experience is required.",
+    "type": "volunteer",
+    "city": "McKinney",
+    "hours_per_shift": 3,
+    "url": "https://www.mckinneyfoodpantry.org/volunteer",
+    "phone": "972-547-4404"
+  },
+  {
+    "name": "Community Food Pantry of McKinney — Sort Food",
+    "description": "Check dates and move food from the back room onto pantry shelves.",
+    "type": "volunteer",
+    "city": "McKinney",
+    "hours_per_shift": 3,
+    "url": "https://www.mckinneyfoodpantry.org/volunteer",
+    "phone": "972-547-4404"
+  },
+  {
+    "name": "Community Food Pantry of McKinney — Shopper Support",
+    "description": "Welcome pantry visitors and walk the aisles with shoppers who would like assistance.",
+    "type": "volunteer",
+    "city": "McKinney",
+    "hours_per_shift": 3,
+    "url": "https://www.mckinneyfoodpantry.org/volunteer",
+    "phone": "972-547-4404"
+  },
+  {
+    "name": "All Community Outreach — Food Pantry",
+    "description": "Welcome and assist clients, stock shelves, and unload food deliveries. Volunteers ages 12–14 must be accompanied by a parent or guardian.",
+    "type": "volunteer",
+    "city": "Allen",
+    "hours_per_shift": 3,
+    "url": "https://www.acocares.org/volunteer-opportunities/",
+    "phone": "972-727-9131"
+  },
+  {
+    "name": "All Community Outreach — Cares Center",
+    "description": "Sort and process donations, greet clients, and stock shelves. This role requires volunteers to be 18 or older.",
+    "type": "volunteer",
+    "city": "Allen",
+    "hours_per_shift": 4,
+    "url": "https://www.acocares.org/volunteer-opportunities/",
+    "phone": "972-727-9131"
+  },
+  {
+    "name": "All Community Outreach — Front Desk",
+    "description": "Help with clerical tasks, answer phones, and greet guests. This role requires volunteers to be 18 or older.",
+    "type": "volunteer",
+    "city": "Allen",
+    "hours_per_shift": 4,
+    "url": "https://www.acocares.org/volunteer-opportunities/",
+    "phone": "972-727-9131"
+  },
+  {
+    "name": "All Community Outreach — Seasonal Food Programs",
+    "description": "Help with seasonal programs such as Kids Summer Food and Holiday Food. Volunteers ages 12–14 must be accompanied by a parent or guardian.",
+    "type": "volunteer",
+    "city": "Allen",
+    "hours_per_shift": 3,
+    "url": "https://www.acocares.org/volunteer-opportunities/",
+    "phone": "972-727-9131"
+  },
+  {
+    "name": "Metrocrest Services — Client Choice Pantry",
+    "description": "Help clients check in, restock and load pantry items, and assist with checkout. Minimum age is 13; ages 13–15 must be accompanied by a parent or adult guardian.",
+    "type": "volunteer",
+    "city": "Carrollton",
+    "hours_per_shift": 3,
+    "url": "https://metrocrestservices.my.salesforce-sites.com/volunteers/",
+    "phone": "972-446-2100"
+  },
+  {
+    "name": "Metrocrest Services — Donation Sorting",
+    "description": "Sort donated items into categories for distribution through the food pantry. Volunteers should be able to lift up to 25 pounds.",
+    "type": "volunteer",
+    "city": "Carrollton",
+    "hours_per_shift": 2,
+    "url": "https://metrocrestservices.my.salesforce-sites.com/volunteers/",
+    "phone": "972-446-2100"
+  },
+  {
+    "name": "Metrocrest Services — Teaching Garden",
+    "description": "Help with composting, watering, harvesting produce, weeding, and general garden maintenance.",
+    "type": "volunteer",
+    "city": "Carrollton",
+    "hours_per_shift": 2,
+    "url": "https://metrocrestservices.my.salesforce-sites.com/volunteers/",
+    "phone": "972-446-2100"
+  },
+  {
+    "name": "Little Elm Area Food Bank — Food Box Packing",
+    "description": "Help fill food boxes and prepare food distributions. The food bank offers volunteer opportunities for individuals and groups.",
+    "type": "volunteer",
+    "city": "Little Elm",
+    "hours_per_shift": 3,
+    "url": "https://www.leafb.org/individual-volunteering",
+    "phone": "972-294-4061"
+  },
+  {
+    "name": "Little Elm Area Food Bank — Shelf Restocking",
+    "description": "Help restock shelves and organize supplies at the food bank.",
+    "type": "volunteer",
+    "city": "Little Elm",
+    "hours_per_shift": 3,
+    "url": "https://www.leafb.org/individual-volunteering",
+    "phone": "972-294-4061"
+  },
+  {
+    "name": "Denton Community Food Center — Shopper",
+    "description": "Help pantry shoppers during Monday morning distribution. The center is volunteer-managed and welcomes regular volunteers.",
+    "type": "volunteer",
+    "city": "Denton",
+    "hours_per_shift": 3,
+    "url": "https://www.dentoncfc.org/get-involed",
+    "phone": null
+  },
+  {
+    "name": "Denton Community Food Center — Distribution",
+    "description": "Help with food distribution on Monday or Wednesday mornings.",
+    "type": "volunteer",
+    "city": "Denton",
+    "hours_per_shift": 3,
+    "url": "https://www.dentoncfc.org/get-involed",
+    "phone": null
+  },
+  {
+    "name": "Denton Community Food Center — Freight Collection",
+    "description": "Help collect freight for the food center on Monday, Wednesday, or Friday mornings.",
+    "type": "volunteer",
+    "city": "Denton",
+    "hours_per_shift": 3,
+    "url": "https://www.dentoncfc.org/get-involed",
+    "phone": null
+  }
+]
