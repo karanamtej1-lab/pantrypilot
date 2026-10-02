@@ -34,7 +34,7 @@ def knowledge(tmp_path):
 
 
 class FakeAI:
-    """Stands in for Claude/Groq and remembers what it was sent."""
+    """Stands in for Claude/publik and remembers what it was sent."""
     def __init__(self, answer="Here is the answer.", used=(1,)):
         self.answer, self.used, self.calls = answer, list(used), []
 
@@ -243,3 +243,145 @@ def test_pantry_link_encodes_ampersand():
     pantry = next(p for p in main.PANTRIES if "&" in p["name"] and not p["website"])
     url = pantry_source({**pantry, "status": "open"})["url"]
     assert "&" not in url.split("query=", 1)[1]
+
+
+# ---------- fixes from the 32-question eval (Oct 2) ----------
+
+from backend.ask import ELIGIBILITY_REPLY, is_eligibility_question, pantry_source, requested_features
+
+
+@pytest.mark.parametrize("question, features", [
+    ("Which pantries offer Spanish support?", ["Spanish spoken"]),
+    ("¿Qué despensas ofrecen ayuda en español?", ["Spanish spoken"]),
+    ("Which pantries have drive-thru service?", ["drive-thru"]),
+    ("any drive through pantry in Denton", ["drive-thru"]),
+    ("Can I find a pantry that does not require ID?", ["no ID needed"]),
+    ("pantry without an ID", ["no ID needed"]),
+    ("despensa sin identificación", ["no ID needed"]),
+    ("Which pantries are open now?", []),
+    ("Do I need an ID?", []),  # asking ABOUT ID is not asking for "no ID"
+])
+def test_requested_features(question, features):
+    assert requested_features(question) == features
+
+
+def test_feature_filter_returns_only_marked_pantries():
+    spanish = matching_pantries("Which pantries offer Spanish support?", main.PANTRIES, MONDAY_10AM, {})
+    drive = matching_pantries("Which pantries have drive-thru service?", main.PANTRIES, MONDAY_10AM, {})
+    no_id = matching_pantries("a pantry that does not require ID", main.PANTRIES, MONDAY_10AM, {})
+    assert spanish and all(p["spanish"] is True for p in spanish)
+    assert len(drive) == sum(1 for p in main.PANTRIES if p["drive_thru"] is True)
+    assert no_id and all(p["id_required"] is False for p in no_id)
+
+
+def test_feature_and_city_combine():
+    found = matching_pantries("drive-thru pantries in Denton", main.PANTRIES, MONDAY_10AM, {})
+    assert found and all(p["city"] == "Denton" and p["drive_thru"] for p in found)
+
+
+def test_city_question_can_show_more_than_five():
+    denton = sum(1 for p in main.PANTRIES if p["city"] == "Denton")
+    assert len(matching_pantries("pantries in Denton", main.PANTRIES, MONDAY_10AM, {})) == min(denton, 10)
+
+
+@pytest.mark.parametrize("question", [
+    "¿Cómo puedo encontrar un banco de alimentos cerca de mí?",
+    "¿Dónde puedo encontrar ayuda alimentaria en Denton?",
+    "Are there food banks in Allen?",
+])
+def test_new_pantry_trigger_words(question):
+    assert wants_pantries(question)
+
+
+@pytest.mark.parametrize("question", [
+    "What's the weather in Frisco today?",  # a city alone must NOT trigger pantries
+    "Who won the 2024 presidential election?",
+])
+def test_off_topic_questions_still_do_not_trigger_pantries(question):
+    assert not wants_pantries(question)
+
+
+@pytest.mark.parametrize("question, spanish", [
+    ("Which pantries offer Spanish support?", False),  # mentions Spanish, written in English
+    ("despensas en Denton", True),                     # Spanish with no ¿ or accents
+    ("¿Qué es WIC?", True),
+    ("What food pantries are in Plano?", False),
+])
+def test_reply_language_is_decided_in_code(question, spanish):
+    assert looks_spanish(question) is spanish
+
+
+def test_reply_language_is_sent_to_the_ai():
+    assert "Reply in: English\n" in build_user_message("Q?", [{"title": "A", "text": "a"}], MONDAY_10AM, "en")
+    assert "Reply in: Spanish\n" in build_user_message("Q?", [{"title": "A", "text": "a"}], MONDAY_10AM, "es")
+
+
+@pytest.mark.parametrize("question", [
+    "Am I eligible for SNAP if I make $2,000 per month?",
+    "Will I qualify for SNAP if I have two children?",
+    "Can I get SNAP if I work 30 hours a week?",
+    "Can I get food assistance if I am a college student?",
+    "¿Califico para WIC si estoy embarazada?",
+    "¿Puedo recibir cupones de comida?",
+])
+def test_eligibility_questions_are_detected(question):
+    assert is_eligibility_question(question)
+
+
+@pytest.mark.parametrize("question", [
+    "How do I apply for SNAP in Texas?",
+    "Can a pantry guarantee that I will receive food today?",
+    "What is the capital of France?",
+])
+def test_other_questions_are_not_eligibility(question):
+    assert not is_eligibility_question(question)
+
+
+def test_eligibility_with_no_sources_gets_fixed_reply_not_the_ai(knowledge, monkeypatch):
+    fake = FakeAI()
+    monkeypatch.setattr(ask, "generate_json", fake)
+    # (The sample knowledge folder mentions SNAP, so these avoid that word to get zero sources.)
+    en = answer_question("Am I eligible if I am unemployed?", knowledge_dir=knowledge, pantries=[])
+    es = answer_question("¿Califico si gano poco?", knowledge_dir=knowledge, pantries=[])
+    assert en["answer"] == ELIGIBILITY_REPLY["en"] and "Texas HHSC" in en["answer"] and "2-1-1" in en["answer"]
+    assert es["answer"] == ELIGIBILITY_REPLY["es"]
+    assert fake.calls == []
+
+
+def test_eligibility_with_sources_goes_to_ai_under_the_no_deciding_rule(knowledge, monkeypatch):
+    fake = FakeAI(used=[1])
+    monkeypatch.setattr(ask, "generate_json", fake)
+    answer_question("Am I eligible for SNAP if I am unemployed?", knowledge_dir=knowledge, pantries=[])
+    system_prompt, user_message = fake.calls[0]
+    assert "Never say whether a person is or is not eligible" in system_prompt
+    assert "SNAP helps people buy food" in user_message
+
+
+def test_off_topic_still_gets_exact_not_sure(knowledge, monkeypatch):
+    monkeypatch.setattr(ask, "generate_json", FakeAI())
+    assert answer_question("How do I learn Python?", knowledge_dir=knowledge, pantries=[])["answer"] == NOT_SURE["en"]
+
+
+def test_id_wording_leaves_nothing_to_invent():
+    pantry = {**next(p for p in main.PANTRIES if p["id_required"] is True), "status": "open"}
+    assert "ID required: yes (the data does not say which kind of ID)" in pantry_source(pantry)["text"]
+    unknown = {**next(p for p in main.PANTRIES if p["id_required"] is None), "status": "open"}
+    assert "ID required: not listed" in pantry_source(unknown)["text"]
+
+
+def test_prompt_forbids_embellishing():
+    assert 'do not say "photo ID"' in ask.SYSTEM_PROMPT
+    assert "Reply in:" in ask.SYSTEM_PROMPT
+
+
+def test_literal_backslash_n_becomes_a_line_break(knowledge, monkeypatch):
+    monkeypatch.setattr(ask, "generate_json", FakeAI(answer="Line one.\\n- Line two", used=[1]))
+    result = answer_question("What does WIC cover?", knowledge_dir=knowledge, pantries=[])
+    assert result["answer"] == "Line one.\n- Line two"
+
+
+def test_search_note_tells_ai_what_filter_was_used(knowledge, monkeypatch):
+    fake = FakeAI(used=[])
+    monkeypatch.setattr(ask, "generate_json", fake)
+    answer_question("Which pantries offer Spanish support?", now=MONDAY_10AM, knowledge_dir=knowledge)
+    assert "Search note: pantries marked 'Spanish spoken' in our data" in fake.calls[0][1]

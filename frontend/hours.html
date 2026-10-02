@@ -3,37 +3,40 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Hours Coach · PantryPilot</title>
+  <title data-i18n="hrs.pageTitle">Hours Coach · PantryPilot</title>
   <meta name="description" content="Track your work, volunteer, and job training hours toward 80 hours a month.">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%232c6e63'/%3E%3Ccircle cx='16' cy='16' r='6' fill='white'/%3E%3C/svg%3E">
+  <meta name="theme-color" content="#2c6e63">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="hours.css">
+  <script src="i18n.js"></script>
+  <script src="settings.js"></script>
 </head>
 <body>
   <header class="topbar">
-    <div class="brand">
-      <h1>Hours Coach</h1>
-      <p>Track work, volunteer, and training hours toward 80 a month</p>
+    <div class="brand-row">
+      <div class="brand">
+        <h1 data-i18n="hrs.title">Hours Coach</h1>
+        <p data-i18n="hrs.tagline">Track work, volunteer, and training hours toward 80 a month</p>
+      </div>
+      <div id="prefs" class="prefs"></div>
     </div>
   </header>
 
-  <main class="page">
+  <main class="page" id="main">
     <p class="privacy">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
-      <span><strong>Your hours stay on your phone.</strong>
-      Your entries are saved only in this browser, and there's no account. To estimate your
-      chances, only anonymous weekly totals are sent (no dates, names, or entries), and nothing is saved.</span>
+      <span data-i18n-html="hrs.privacy"><strong>Your hours stay on your phone.</strong></span>
     </p>
 
-    <p id="storage-warning" class="message" hidden>
-      This browser won't let PantryPilot save data (private browsing can do this).
-      Hours you add will disappear when you close the page.
-    </p>
+    <p id="storage-warning" class="message" role="alert" hidden data-i18n="hrs.storageWarning"></p>
 
     <!-- Progress -->
     <section class="card" aria-labelledby="progress-title">
-      <h2 id="progress-title" class="visually-hidden">This month's progress</h2>
-      <p class="progress-number"><span id="total">0</span> <span class="of">of 80 hours this month</span></p>
+      <h2 id="progress-title" class="visually-hidden" data-i18n="hrs.progressTitle">This month's progress</h2>
+      <p class="progress-number"><span id="total">0</span> <span class="of" data-i18n="hrs.ofGoal">of 80 hours this month</span></p>
       <div id="progress" class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="80" aria-valuenow="0" aria-labelledby="progress-title">
         <div id="progress-fill" class="progress-fill"></div>
       </div>
@@ -41,97 +44,94 @@
     </section>
 
     <!-- Forecast -->
-    <section id="forecast" class="card forecast" aria-labelledby="forecast-title" aria-live="polite">
-      <h2 id="forecast-title">Your chances this month</h2>
-      <p id="forecast-loading" class="forecast-note">Working out your chances…</p>
+    <section id="forecast" class="card forecast" aria-labelledby="forecast-title">
+      <h2 id="forecast-title" data-i18n="hrs.forecastTitle">Your chances this month</h2>
+      <p id="forecast-loading" class="forecast-note" role="status" data-i18n="hrs.forecastLoading">Working out your chances…</p>
 
       <div id="forecast-body" hidden>
-        <p id="chance" class="chance"></p>
+        <p id="chance" class="chance" aria-live="polite"></p>
         <div id="chance-dots" class="chance-dots" aria-hidden="true"></div>
         <p id="range" class="range"></p>
         <p id="basis" class="forecast-note"></p>
 
         <button type="button" id="what-if-button" class="btn btn-block what-if-button"
-                aria-expanded="false" aria-controls="what-if-result">
+                aria-expanded="false" aria-controls="what-if-result" data-i18n="hrs.whatIfButton">
           What if I add a 4-hour volunteer shift?
         </button>
-        <p id="what-if-result" class="what-if-result" hidden></p>
+        <p id="what-if-result" class="what-if-result" aria-live="polite" hidden></p>
 
         <div id="ways" class="ways" hidden>
-          <h3>Ways to add hours</h3>
+          <h3 data-i18n="hrs.waysTitle">Ways to add hours</h3>
           <ul id="ways-list" class="ways-list"></ul>
         </div>
 
-        <p class="forecast-note">An estimate from 10,000 simulations of your past weeks, not a guarantee.</p>
+        <p class="forecast-note" data-i18n="hrs.forecastNote">An estimate from 10,000 simulations of your past weeks, not a guarantee.</p>
       </div>
     </section>
 
     <!-- Add hours -->
     <section class="card" aria-labelledby="add-title">
-      <h2 id="add-title">Add hours</h2>
+      <h2 id="add-title" data-i18n="hrs.addTitle">Add hours</h2>
       <form id="entry-form" class="entry-form" novalidate>
         <div class="field-row">
           <label class="field">
-            <span>Date</span>
-            <input id="date" name="date" type="date" required>
+            <span data-i18n="hrs.date">Date</span>
+            <input id="date" name="date" type="date" required aria-describedby="form-error">
           </label>
           <label class="field">
-            <span>Hours</span>
+            <span data-i18n="hrs.hours">Hours</span>
             <input id="hours" name="hours" type="number" inputmode="decimal"
-                   min="0.25" max="24" step="0.25" placeholder="e.g. 4" required>
+                   min="0.25" max="24" step="0.25" placeholder="e.g. 4" required
+                   data-i18n-attr="placeholder:hrs.hoursPlaceholder" aria-describedby="form-error">
           </label>
         </div>
 
         <fieldset class="types">
-          <legend>Type</legend>
-          <label><input type="radio" name="type" value="work" checked><span>Work</span></label>
-          <label><input type="radio" name="type" value="volunteer"><span>Volunteer</span></label>
-          <label><input type="radio" name="type" value="training"><span>Job training</span></label>
+          <legend data-i18n="hrs.type">Type</legend>
+          <label><input type="radio" name="type" value="work" checked><span data-i18n="type.work">Work</span></label>
+          <label><input type="radio" name="type" value="volunteer"><span data-i18n="type.volunteer">Volunteer</span></label>
+          <label><input type="radio" name="type" value="training"><span data-i18n="type.training">Job training</span></label>
         </fieldset>
 
         <p id="form-error" class="form-error" role="alert"></p>
-        <button type="submit" class="btn btn-primary btn-block">Add hours</button>
+        <button type="submit" class="btn btn-primary btn-block" data-i18n="hrs.addButton">Add hours</button>
       </form>
     </section>
 
     <!-- Weekly chart -->
     <section class="card" aria-labelledby="weeks-title">
-      <h2 id="weeks-title">Hours by week</h2>
+      <h2 id="weeks-title" data-i18n="hrs.weeksTitle">Hours by week</h2>
       <ul id="weeks" class="weeks"></ul>
-      <p class="chart-key"><span class="pace-swatch" aria-hidden="true"></span> 20 hours a week keeps you on track for 80</p>
+      <p class="chart-key"><span class="pace-swatch" aria-hidden="true"></span> <span data-i18n="hrs.paceKey">20 hours a week keeps you on track for 80</span></p>
     </section>
 
     <!-- Entries -->
     <section class="card" aria-labelledby="entries-title">
-      <h2 id="entries-title">This month's entries</h2>
+      <h2 id="entries-title" data-i18n="hrs.entriesTitle">This month's entries</h2>
       <p id="undo" class="undo" role="status" aria-live="polite"></p>
       <ul id="entries" class="entries"></ul>
       <button type="button" id="download-pdf" class="btn btn-block download-button">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>
-        Download my monthly summary
+        <span data-i18n="hrs.download">Download my monthly summary</span>
       </button>
       <p id="pdf-message" class="pdf-message" role="status" aria-live="polite"></p>
     </section>
 
-    <p class="footnote">
-      This is a personal tracker, not an official SNAP record, and it can't tell you whether
-      you meet a work requirement. Keep your own proof (pay stubs, sign-in sheets) and check
-      with Texas HHS or your caseworker.
-    </p>
+    <p class="footnote" data-i18n="hrs.footnote">This is a personal tracker, not an official SNAP record.</p>
   </main>
 
-  <nav class="bottom-nav" aria-label="Main">
+  <nav class="bottom-nav" aria-label="Main" data-i18n-attr="aria-label:nav.label">
     <a href="/">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
-      Map
+      <span data-i18n="nav.map">Map</span>
     </a>
     <a href="ask.html">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.8 7L4 20l1.1-4.6A8 8 0 1 1 21 12z"/></svg>
-      Ask
+      <span data-i18n="nav.ask">Ask</span>
     </a>
     <a href="hours.html" aria-current="page">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-      Hours
+      <span data-i18n="nav.hours">Hours</span>
     </a>
   </nav>
 

@@ -47,7 +47,7 @@
   font: inherit; font-weight: 400; font-size: 1.05rem;
   color: var(--text);
   background: var(--surface);
-  border: 1.5px solid var(--border);
+  border: 1.5px solid var(--control-border);
   border-radius: var(--radius);
 }
 .field input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
@@ -61,14 +61,14 @@
   display: flex; align-items: center; justify-content: center; text-align: center;
   min-height: var(--tap); padding: 4px 6px;
   font-weight: 600; font-size: 0.95rem;
-  border: 1.5px solid var(--border);
+  border: 1.5px solid var(--control-border);
   border-radius: var(--radius);
   background: var(--surface);
 }
 .types input:checked + span { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
 .types input:focus-visible + span { outline: 3px solid var(--accent); outline-offset: 2px; }
 
-.form-error { margin: 0; color: #b3261e; font-weight: 600; }
+.form-error { margin: 0; color: var(--error); font-weight: 600; }
 .form-error:empty { display: none; }
 
 .btn-block { width: 100%; height: 52px; font-size: 1.05rem; }
@@ -126,11 +126,11 @@
 .delete {
   width: var(--tap); height: var(--tap);
   display: flex; align-items: center; justify-content: center;
-  border: 1.5px solid var(--border); border-radius: 12px;
+  border: 1.5px solid var(--control-border); border-radius: 12px;
   background: var(--surface); color: var(--muted);
   cursor: pointer;
 }
-.delete:hover { border-color: #b3261e; color: #b3261e; }
+.delete:hover { border-color: var(--error); color: var(--error); }
 .delete svg { width: 20px; height: 20px; }
 
 .undo { margin: 0 0 8px; font-size: 0.95rem; }
@@ -179,7 +179,7 @@
 .ways-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
 .ways-list a {
   display: block; padding: 12px 14px;
-  border: 1.5px solid var(--border); border-radius: var(--radius);
+  border: 1.5px solid var(--control-border); border-radius: var(--radius);
   text-decoration: none; color: var(--text);
 }
 .ways-list a:hover { border-color: var(--accent); }

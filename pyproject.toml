@@ -13,7 +13,7 @@ dependencies = [
     "uvicorn",
     "numpy",
     "python-dotenv",
-    "groq",
+    "openai",   # publik API is OpenAI-compatible
     "anthropic",
 ]
 

@@ -3,44 +3,54 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>PantryPilot</title>
+  <title data-i18n="map.pageTitle">PantryPilot</title>
   <meta name="description" content="Find free food pantries in Collin and Denton County, Texas.">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%232c6e63'/%3E%3Ccircle cx='16' cy='16' r='6' fill='white'/%3E%3C/svg%3E">
+  <meta name="theme-color" content="#2c6e63">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
   <link rel="stylesheet" href="style.css">
+  <script src="i18n.js"></script>
+  <script src="settings.js"></script>
 </head>
 <body class="map-page">
   <header class="topbar">
-    <div class="brand">
-      <h1>PantryPilot</h1>
-      <p>Free food near you in Collin &amp; Denton County</p>
+    <div class="brand-row">
+      <div class="brand">
+        <h1>PantryPilot</h1>
+        <p data-i18n="map.tagline">Free food near you in Collin &amp; Denton County</p>
+      </div>
+      <div id="prefs" class="prefs"></div>
     </div>
 
-    <form id="zip-form" class="search" novalidate>
-      <label for="zip" class="visually-hidden">ZIP code</label>
+    <form id="zip-form" class="search" role="search" novalidate>
+      <label for="zip" class="visually-hidden" data-i18n="map.zipLabel">ZIP code</label>
       <input id="zip" name="zip" type="text" inputmode="numeric" autocomplete="postal-code"
-             maxlength="5" placeholder="ZIP code" aria-describedby="message">
-      <button type="submit" class="btn btn-primary">Search</button>
-      <button type="button" id="locate" class="btn">Near me</button>
+             maxlength="5" placeholder="ZIP code" data-i18n-attr="placeholder:map.zipPlaceholder"
+             aria-describedby="message">
+      <button type="submit" class="btn btn-primary" data-i18n="map.search">Search</button>
+      <button type="button" id="locate" class="btn" data-i18n="map.nearMe">Near me</button>
     </form>
 
-    <div class="filters" role="group" aria-label="Filters">
-      <button type="button" class="chip" data-filter="open_now" aria-pressed="false">Open now</button>
-      <button type="button" class="chip" data-filter="no_id" aria-pressed="false">No ID needed</button>
-      <button type="button" class="chip" data-filter="drive_thru" aria-pressed="false">Drive-thru</button>
-      <button type="button" class="chip" data-filter="spanish" aria-pressed="false">Spanish spoken</button>
+    <div class="filters" role="group" aria-label="Filters" data-i18n-attr="aria-label:map.filters">
+      <button type="button" class="chip" data-filter="open_now" aria-pressed="false" data-i18n="filter.open_now">Open now</button>
+      <button type="button" class="chip" data-filter="no_id" aria-pressed="false" data-i18n="filter.no_id">No ID needed</button>
+      <button type="button" class="chip" data-filter="drive_thru" aria-pressed="false" data-i18n="filter.drive_thru">Drive-thru</button>
+      <button type="button" class="chip" data-filter="spanish" aria-pressed="false" data-i18n="filter.spanish">Spanish spoken</button>
     </div>
   </header>
 
-  <main class="layout">
-    <section class="map-wrap" aria-label="Map of food pantries">
+  <main class="layout" id="main">
+    <section class="map-wrap" aria-label="Map of food pantries" data-i18n-attr="aria-label:map.region">
+      <p class="visually-hidden" data-i18n="map.keyboardHint">The same pantries are in the list below.</p>
       <div id="map"></div>
-      <ul class="legend" aria-label="Map legend">
-        <li><span class="dot open"></span>Open</li>
-        <li><span class="dot later_today"></span>Later today</li>
-        <li><span class="dot appointment"></span>Appointment</li>
-        <li><span class="dot closed"></span>Closed</li>
-        <li><span class="dot unknown"></span>Call for hours</li>
+      <ul class="legend" aria-label="Map legend" data-i18n-attr="aria-label:map.legend">
+        <li><span class="dot open" aria-hidden="true"></span><span data-i18n="legend.open">Open</span></li>
+        <li><span class="dot later_today" aria-hidden="true"></span><span data-i18n="legend.later_today">Later today</span></li>
+        <li><span class="dot appointment" aria-hidden="true"></span><span data-i18n="legend.appointment">Appointment</span></li>
+        <li><span class="dot closed" aria-hidden="true"></span><span data-i18n="legend.closed">Closed</span></li>
+        <li><span class="dot unknown" aria-hidden="true"></span><span data-i18n="legend.unknown">Call for hours</span></li>
       </ul>
     </section>
 
@@ -51,29 +61,29 @@
 
       <h2 class="list-heading">
         <span id="list-title">Pantries</span>
-        <span id="count" class="count"></span>
+        <span id="count" class="count" aria-live="polite"></span>
       </h2>
       <ul id="list" class="list"></ul>
 
-      <p class="footnote">
+      <p class="footnote" data-i18n-html="map.footnote">
         Hours change. Please call ahead when you can.
         Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors.
       </p>
     </section>
   </main>
 
-  <nav class="bottom-nav" aria-label="Main">
+  <nav class="bottom-nav" aria-label="Main" data-i18n-attr="aria-label:nav.label">
     <a href="/" aria-current="page">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
-      Map
+      <span data-i18n="nav.map">Map</span>
     </a>
     <a href="ask.html">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.8 7L4 20l1.1-4.6A8 8 0 1 1 21 12z"/></svg>
-      Ask
+      <span data-i18n="nav.ask">Ask</span>
     </a>
     <a href="hours.html">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-      Hours
+      <span data-i18n="nav.hours">Hours</span>
     </a>
   </nav>
 

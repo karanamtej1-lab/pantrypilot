@@ -3,5 +3,5 @@ uvicorn
 numpy
 python-dotenv
 pytest
-groq
+openai
 anthropic

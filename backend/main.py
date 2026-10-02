@@ -50,7 +50,7 @@ app.add_middleware(
 @app.get("/health")
 def health():
     return {"status": "ok", "pantries_loaded": len(PANTRIES), "zip_codes_loaded": len(ZIP_CENTROIDS),
-            "ai_provider": active_provider()}  # "claude", "groq", or None; never the key itself
+            "ai_provider": active_provider()}  # "claude", "publik", or None; never the key itself
 
 
 def find_origin(zip_code, lat, lng):

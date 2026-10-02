@@ -1,15 +1,24 @@
 """The one place PantryPilot talks to an AI model.
 
-Claude first (if ANTHROPIC_API_KEY is in .env), otherwise Groq (GROQ_API_KEY).
+Claude first (if ANTHROPIC_API_KEY is set), otherwise the publik API (PUBLIK_API_KEY).
 Either way, generate_json() returns a Python dict matching ANSWER_SCHEMA.
+Keys come only from environment variables (.env locally, Vercel settings online);
+they are never hard-coded, logged, or sent to the browser.
 """
 
 import json
+import logging
 import os
+import re
+import time
 
 from dotenv import load_dotenv
 
-from backend.config import CLAUDE_MODEL, GROQ_MODEL, MAX_ANSWER_TOKENS
+from backend.config import (
+    CLAUDE_MODEL, MAX_ANSWER_TOKENS, PUBLIK_BASE_URL, PUBLIK_MODEL, PUBLIK_RETRY_SECONDS,
+)
+
+log = logging.getLogger("pantrypilot.llm")
 
 load_dotenv()  # reads .env into environment variables; keys never go to the browser
 
@@ -32,8 +41,8 @@ class LLMUnavailable(Exception):
 def active_provider():
     if os.getenv("ANTHROPIC_API_KEY"):
         return "claude"
-    if os.getenv("GROQ_API_KEY"):
-        return "groq"
+    if os.getenv("PUBLIK_API_KEY"):
+        return "publik"
     return None
 
 
@@ -41,9 +50,9 @@ def generate_json(system, user):
     provider = active_provider()
     if provider == "claude":
         return _ask_claude(system, user)
-    if provider == "groq":
-        return _ask_groq(system, user)
-    raise LLMUnavailable("No AI key found. Add ANTHROPIC_API_KEY or GROQ_API_KEY to .env")
+    if provider == "publik":
+        return _ask_publik(system, user)
+    raise LLMUnavailable("No AI key found. Add PUBLIK_API_KEY (or ANTHROPIC_API_KEY) to .env")
 
 
 def _ask_claude(system, user):
@@ -78,27 +87,71 @@ def _ask_claude(system, user):
     return json.loads(text)  # structured output guarantees valid JSON
 
 
-def _ask_groq(system, user):
-    from groq import Groq, GroqError
+def _ask_publik(system, user):
+    """Ask the publik API (OpenAI-compatible: https://publikhq.com/developers)."""
+    from openai import APIConnectionError, APIStatusError, OpenAI
+
+    client = OpenAI(
+        api_key=os.environ["PUBLIK_API_KEY"],  # sent as "Authorization: Bearer ..."
+        base_url=PUBLIK_BASE_URL,
+        max_retries=0,  # we follow publik's own retry advice below instead
+        timeout=25,     # seconds per try; worst case 25 + 10 wait + 25, within Vercel's function limit
+    )
+    messages = [
+        {"role": "system", "content": system + "\n\nReply with ONLY a JSON object: "
+         '{"answer": "...", "used_sources": [1, 2]}'},
+        {"role": "user", "content": user},
+    ]
+
+    for attempt in (1, 2):
+        try:
+            response = client.chat.completions.create(
+                model=PUBLIK_MODEL,
+                max_tokens=MAX_ANSWER_TOKENS,
+                response_format={"type": "json_object"},
+                messages=messages,
+            )
+            break
+        except APIStatusError as error:
+            # publik docs: 503 is temporary, so retry once after 10 seconds.
+            if error.status_code == 503 and attempt == 1:
+                time.sleep(PUBLIK_RETRY_SECONDS)
+                continue
+            if error.status_code == 402:
+                # Out of balance. The top-up link is for YOU (the app owner), so it goes to
+                # the server log; visitors just get the friendly "dial 2-1-1" message.
+                # The SDK usually passes the inner "error" object as body; accept both shapes.
+                body = error.body if isinstance(error.body, dict) else {}
+                details = body.get("error", body) if isinstance(body.get("error", body), dict) else {}
+                log.error("publik balance empty: %s Top up: %s", details.get("message"), details.get("top_up_url"))
+            raise LLMUnavailable(f"publik API error {error.status_code}") from error
+        except APIConnectionError as error:
+            raise LLMUnavailable("Couldn't reach the publik API") from error
 
     try:
-        response = Groq().chat.completions.create(
-            model=GROQ_MODEL,
-            max_tokens=MAX_ANSWER_TOKENS,
-            response_format={"type": "json_object"},
-            messages=[
-                {"role": "system", "content": system + "\n\nReply with a JSON object: "
-                 '{"answer": "...", "used_sources": [1, 2]}'},
-                {"role": "user", "content": user},
-            ],
-        )
-        data = json.loads(response.choices[0].message.content)
-    except (GroqError, json.JSONDecodeError, IndexError, TypeError) as error:
-        raise LLMUnavailable("Groq API error") from error
+        data = parse_json_answer(response.choices[0].message.content)
+    except (ValueError, IndexError, TypeError, AttributeError) as error:
+        raise LLMUnavailable("publik answer wasn't valid JSON") from error
 
-    # Groq's JSON mode doesn't enforce our exact shape, so check it ourselves.
-    if not isinstance(data.get("answer"), str):
-        raise LLMUnavailable("Groq answer was missing the answer text")
+    # JSON mode doesn't enforce our exact shape, so check it ourselves.
+    if not isinstance(data.get("answer"), str) or not data["answer"].strip():
+        raise LLMUnavailable("publik answer was missing the answer text")
     sources = data.get("used_sources", [])
     data["used_sources"] = [n for n in sources if isinstance(n, int)] if isinstance(sources, list) else []
+    return data
+
+
+def parse_json_answer(text):
+    """Read the model's JSON, even if it wrapped it in ```json fences or added a sentence."""
+    if not isinstance(text, str):
+        raise ValueError("no text")
+    try:
+        data = json.loads(text)
+    except json.JSONDecodeError:
+        match = re.search(r"\{.*\}", text, re.DOTALL)  # the outermost {...}
+        if not match:
+            raise ValueError("no JSON object found")
+        data = json.loads(match.group(0))
+    if not isinstance(data, dict):
+        raise ValueError("JSON was not an object")
     return data

@@ -1,11 +1,16 @@
-// Hours Coach: plain JavaScript. All data lives in this browser's localStorage.
-// Nothing is ever sent to the server.
+// Hours Coach: plain JavaScript. Entries live only in this browser's localStorage.
+// Only anonymous weekly totals are sent to /forecast; nothing is stored there.
+// Every word on screen comes from i18n.js through t("key").
 
 const STORAGE_KEY = "pantrypilot.hours.v1";
 const MONTHLY_GOAL = 80;
 const WEEKLY_PACE = 20; // 80 hours / ~4 weeks
 
-const TYPE_LABELS = { work: "Work", volunteer: "Volunteer", training: "Job training" };
+const TYPES = ["work", "volunteer", "training"];
+
+function typeLabel(type) {
+  return t(`type.${type}`);
+}
 
 // ---------- dates ----------
 // Dates are stored as "YYYY-MM-DD" strings. We never use new Date("2026-09-28"):
@@ -30,7 +35,7 @@ function addDays(date, days) {
 }
 
 function shortDate(date) {
-  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  return date.toLocaleDateString(locale(), { month: "short", day: "numeric" });
 }
 
 // ---------- saving and loading ----------
@@ -61,7 +66,7 @@ function saveEntries() {
 function isValidEntry(entry) {
   return entry && /^\d{4}-\d{2}-\d{2}$/.test(entry.date) &&
     typeof entry.hours === "number" && entry.hours > 0 && entry.hours <= 24 &&
-    entry.type in TYPE_LABELS;
+    TYPES.includes(entry.type);
 }
 
 function newId() {
@@ -77,7 +82,7 @@ function monthInfo(today = new Date()) {
     first,
     last,
     prefix: toDateString(first).slice(0, 7),          // "2026-09"
-    name: today.toLocaleDateString("en-US", { month: "long" }),
+    name: today.toLocaleDateString(locale(), { month: "long" }),
     daysLeft: last.getDate() - today.getDate() + 1,   // counting today
   };
 }
@@ -122,7 +127,7 @@ function el(tag, attrs = {}, ...children) {
 function drawProgress(month, total) {
   const percent = Math.min(total / MONTHLY_GOAL, 1) * 100;
   const left = Math.max(MONTHLY_GOAL - total, 0);
-  const dayWord = month.daysLeft === 1 ? "day" : "days";
+  const dayWord = t(month.daysLeft === 1 ? "hrs.day" : "hrs.days");
 
   document.querySelector("#total").textContent = formatHours(total);
   document.querySelector("#progress-fill").style.width = `${percent}%`;
@@ -133,11 +138,11 @@ function drawProgress(month, total) {
   const detail = document.querySelector("#progress-detail");
   detail.replaceChildren();
   if (left === 0) {
-    detail.append(el("strong", {}, `You've logged 80 hours for ${month.name}!`),
-      ` ${month.daysLeft} ${dayWord} left in the month.`);
+    detail.append(el("strong", {}, t("hrs.reached", { month: month.name })),
+      t("hrs.reachedDays", { n: month.daysLeft, dayWord }));
   } else {
-    detail.append(el("strong", {}, `${formatHours(left)} hours to go`),
-      ` · ${month.daysLeft} ${dayWord} left in ${month.name} (including today)`);
+    detail.append(el("strong", {}, t("hrs.toGo", { hours: formatHours(left) })),
+      t("hrs.daysLeft", { n: month.daysLeft, dayWord, month: month.name }));
   }
 }
 
@@ -167,8 +172,8 @@ function drawWeeks(month, monthEntries) {
         el("div", { class: `bar${week.hours ? "" : " empty"}`, style: `width:${width}%` }),
         el("div", { class: "pace-line", style: `left:${(WEEKLY_PACE / scaleMax) * 100}%` }),
       ),
-      el("span", { class: "week-value" }, `${formatHours(week.hours)} h`),
-      el("span", { class: "visually-hidden" }, isCurrent ? " (this week)" : ""),
+      el("span", { class: "week-value" }, t("hrs.hoursShort", { n: formatHours(week.hours) })),
+      el("span", { class: "visually-hidden" }, isCurrent ? t("hrs.thisWeek") : ""),
     );
   }));
 }
@@ -176,19 +181,19 @@ function drawWeeks(month, monthEntries) {
 function drawEntries(monthEntries) {
   const list = document.querySelector("#entries");
   if (!monthEntries.length) {
-    list.replaceChildren(el("li", { class: "empty" }, "No hours yet this month. Add your first entry above."));
+    list.replaceChildren(el("li", { class: "empty" }, t("hrs.noEntries")));
     return;
   }
 
   // Newest first
   const sorted = [...monthEntries].sort((a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id));
   list.replaceChildren(...sorted.map((entry) => {
-    const day = fromDateString(entry.date).toLocaleDateString("en-US", {
+    const day = fromDateString(entry.date).toLocaleDateString(locale(), {
       weekday: "short", month: "short", day: "numeric",
     });
     const button = el("button", {
       type: "button", class: "delete",
-      "aria-label": `Delete ${formatHours(entry.hours)} hours of ${TYPE_LABELS[entry.type]} on ${day}`,
+      "aria-label": t("hrs.delete", { hours: formatHours(entry.hours), type: typeLabel(entry.type), day }),
     });
     button.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>';
     button.addEventListener("click", () => deleteEntry(entry.id));
@@ -196,9 +201,9 @@ function drawEntries(monthEntries) {
     return el("li", { class: "entry" },
       el("div", {},
         el("span", { class: "entry-date" }, day),
-        el("span", { class: "entry-type" }, TYPE_LABELS[entry.type]),
+        el("span", { class: "entry-type" }, typeLabel(entry.type)),
       ),
-      el("span", { class: "entry-hours" }, `${formatHours(entry.hours)} h`),
+      el("span", { class: "entry-hours" }, t("hrs.hoursShort", { n: formatHours(entry.hours) })),
       button,
     );
   }));
@@ -208,9 +213,9 @@ function drawUndo() {
   const box = document.querySelector("#undo");
   box.replaceChildren();
   if (!lastDeleted) return;
-  const button = el("button", { type: "button" }, "Undo");
+  const button = el("button", { type: "button" }, t("hrs.undo"));
   button.addEventListener("click", undoDelete);
-  box.append(`Deleted ${formatHours(lastDeleted.hours)} h (${TYPE_LABELS[lastDeleted.type]}).`, button);
+  box.append(t("hrs.deleted", { hours: formatHours(lastDeleted.hours), type: typeLabel(lastDeleted.type) }), button);
 }
 
 function draw() {
@@ -229,7 +234,10 @@ function draw() {
 // Made entirely in the browser with jsPDF. The entries never leave the phone.
 
 const JSPDF_URL = "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+// This exact English sentence is always printed, in both languages (the Spanish
+// version adds a translated line under it).
 const PDF_FOOTER = "Personal record created with PantryPilot. Not an official Texas HHSC document.";
+const PDF_FOOTER_ES = "Registro personal creado con PantryPilot. No es un documento oficial de Texas HHSC.";
 const MAX_ROWS = 28; // more entries than this won't fit one page, so we switch to one row per day
 
 let jsPdfLoading = null;
@@ -253,13 +261,13 @@ function loadJsPdf() {
 function summaryRows(monthEntries) {
   const sorted = [...monthEntries].sort((a, b) => a.date.localeCompare(b.date));
   if (sorted.length <= MAX_ROWS) {
-    return { byDay: false, rows: sorted.map((e) => [e.date, TYPE_LABELS[e.type], e.hours]) };
+    return { byDay: false, rows: sorted.map((e) => [e.date, typeLabel(e.type), e.hours]) };
   }
   const days = new Map();
   for (const e of sorted) {
     const day = days.get(e.date) || { hours: 0, types: new Set() };
     day.hours += e.hours;
-    day.types.add(TYPE_LABELS[e.type]);
+    day.types.add(typeLabel(e.type));
     days.set(e.date, day);
   }
   return {
@@ -276,7 +284,7 @@ function buildSummaryPdf(jsPDF, month, monthEntries) {
   const right = width - 20;
   const total = monthEntries.reduce((sum, e) => sum + e.hours, 0);
   const year = month.first.getFullYear();
-  const longDate = (text) => fromDateString(text).toLocaleDateString("en-US", {
+  const longDate = (text) => fromDateString(text).toLocaleDateString(locale(), {
     weekday: "short", month: "short", day: "numeric",
   });
 
@@ -284,14 +292,14 @@ function buildSummaryPdf(jsPDF, month, monthEntries) {
   let y = 24;
   doc.setFont("helvetica", "bold");
   doc.setFontSize(18);
-  doc.text(`Monthly Hours Summary: ${month.name} ${year}`, left, y);
+  doc.text(t("pdf.title", { month: month.name, year }), left, y);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(10);
   doc.setTextColor(90);
   y += 7;
-  doc.text(`Created ${new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}`, left, y);
+  doc.text(t("pdf.created", { date: new Date().toLocaleDateString(locale(), { month: "long", day: "numeric", year: "numeric" }) }), left, y);
   // Blank line to write a name by hand; the app never asks for one.
-  doc.text("Name: ______________________________", right, y, { align: "right" });
+  doc.text(t("pdf.name"), right, y, { align: "right" });
 
   // Totals box
   y += 8;
@@ -300,13 +308,13 @@ function buildSummaryPdf(jsPDF, month, monthEntries) {
   doc.setTextColor(30, 42, 44);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(14);
-  doc.text(`Total: ${formatHours(total)} of 80 hours`, left + 6, y + 10);
+  doc.text(t("pdf.total", { hours: formatHours(total) }), left + 6, y + 10);
   doc.setFontSize(10);
   let typeY = y + 18;
-  for (const [type, label] of Object.entries(TYPE_LABELS)) {
+  for (const [type, label] of TYPES.map((type) => [type, typeLabel(type)])) {
     const ofType = monthEntries.filter((e) => e.type === type);
     const hours = ofType.reduce((sum, e) => sum + e.hours, 0);
-    const count = `${ofType.length} ${ofType.length === 1 ? "entry" : "entries"}`;
+    const count = t(ofType.length === 1 ? "pdf.entryOne" : "pdf.entryMany", { n: ofType.length });
     doc.setFont("helvetica", "normal");
     doc.text(label, left + 6, typeY);
     doc.text(count, left + 70, typeY);
@@ -319,7 +327,7 @@ function buildSummaryPdf(jsPDF, month, monthEntries) {
   const { byDay, rows } = summaryRows(monthEntries);
   y += 44;
   doc.setFontSize(12);
-  doc.text(byDay ? "Hours by day" : "Entries", left, y);
+  doc.text(t(byDay ? "pdf.byDay" : "pdf.entries"), left, y);
   y += 6;
   const cols = { date: left + 2, type: left + 55, hours: right - 2 };
   const footerY = height - 18;
@@ -333,9 +341,9 @@ function buildSummaryPdf(jsPDF, month, monthEntries) {
 
   doc.setFontSize(9.5);
   doc.setTextColor(90);
-  doc.text("Date", cols.date, y);
-  doc.text("Type", cols.type, y);
-  doc.text("Hours", cols.hours, y, { align: "right" });
+  doc.text(t("pdf.colDate"), cols.date, y);
+  doc.text(t("pdf.colType"), cols.type, y);
+  doc.text(t("pdf.colHours"), cols.hours, y, { align: "right" });
   y += 2;
   doc.setDrawColor(180);
   doc.line(left, y, right, y);
@@ -345,7 +353,7 @@ function buildSummaryPdf(jsPDF, month, monthEntries) {
   doc.setFont("helvetica", "normal");
   doc.setFontSize(rowFont);
   if (!rows.length) {
-    doc.text("No hours logged this month.", cols.date, y);
+    doc.text(t("pdf.none"), cols.date, y);
     y += rowHeight;
   }
   rows.forEach(([date, type, hours], i) => {
@@ -362,7 +370,7 @@ function buildSummaryPdf(jsPDF, month, monthEntries) {
   doc.setDrawColor(180);
   doc.line(left, y - 3, right, y - 3);
   doc.setFont("helvetica", "bold");
-  doc.text("Total", cols.date, y + 2);
+  doc.text(t("pdf.totalRow"), cols.date, y + 2);
   doc.text(formatHours(total), cols.hours, y + 2, { align: "right" });
 
   // Footer: always at the bottom of the page
@@ -376,8 +384,12 @@ function buildSummaryPdf(jsPDF, month, monthEntries) {
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8.5);
   doc.setTextColor(90);
-  doc.text("Hours are entered by the user. Keep your own proof, such as pay stubs or sign-in sheets.",
-    width / 2, footerY + 5, { align: "center" });
+  let noteY = footerY + 5;
+  if (getLang() === "es") {
+    doc.text(PDF_FOOTER_ES, width / 2, noteY, { align: "center" });
+    noteY += 4.5;
+  }
+  doc.text(t("pdf.proof"), width / 2, noteY, { align: "center" });
 
   return doc;
 }
@@ -389,14 +401,14 @@ async function downloadSummary() {
   const monthEntries = thisMonthsEntries(month);
 
   button.disabled = true;
-  message.textContent = "Making your PDF…";
+  message.textContent = t("pdf.making");
   try {
     const jsPDF = await loadJsPdf();
     const doc = buildSummaryPdf(jsPDF, month, monthEntries);
     doc.save(`pantrypilot-hours-${month.prefix}.pdf`);
-    message.textContent = "Your summary was downloaded.";
+    message.textContent = t("pdf.done");
   } catch (error) {
-    message.textContent = "Couldn't make the PDF. Check your internet connection and try again.";
+    message.textContent = t("pdf.failed");
   } finally {
     button.disabled = false;
   }
@@ -437,16 +449,15 @@ function pastWeeklyTotals() {
 // 0.43 -> "About 4 in 10". Plain words instead of percentages.
 function chanceInTen(probability) {
   const tenths = Math.round(probability * 10);
-  if (tenths >= 10) return { words: "More than 9 in 10", dots: 10 };
-  if (tenths <= 0) return { words: "Less than 1 in 10", dots: 0 };
-  return { words: `About ${tenths} in 10`, dots: tenths };
+  if (tenths >= 10) return { words: t("hrs.chanceMore"), dots: 10 };
+  if (tenths <= 0) return { words: t("hrs.chanceLess"), dots: 0 };
+  return { words: t("hrs.chanceAbout", { n: tenths }), dots: tenths };
 }
 
 function basisText(weeks) {
-  if (weeks >= 3) return `Based on your last ${weeks} weeks of hours.`;
-  if (weeks === 0) return "Based on a typical week, since you haven't logged a full week yet. It gets more personal as you log more.";
-  const weekWord = weeks === 1 ? "week" : "weeks";
-  return `Based on your ${weeks} ${weekWord} of hours mixed with a typical week, until you've logged 3 weeks.`;
+  if (weeks >= 3) return t("hrs.basisMany", { n: weeks });
+  if (weeks === 0) return t("hrs.basisNone");
+  return t("hrs.basisFew", { n: weeks, weekWord: t(weeks === 1 ? "hrs.week" : "hrs.weeks") });
 }
 
 let forecastRequest = 0;  // ignore answers to old requests if the user keeps typing
@@ -477,7 +488,7 @@ async function updateForecast(month, total) {
     document.querySelector("#forecast-body").hidden = true;
     const note = document.querySelector("#forecast-loading");
     note.hidden = false;
-    note.textContent = "Couldn't work out your chances right now. Your hours are still saved.";
+    note.textContent = t("hrs.forecastError");
   }
 }
 
@@ -492,10 +503,10 @@ function drawForecast(result, total) {
   const reached = total >= MONTHLY_GOAL;
 
   if (reached) {
-    chance.replaceChildren("You've already reached 80 hours this month!");
+    chance.replaceChildren(t("hrs.alreadyReached"));
   } else {
     const { words } = chanceInTen(result.probability);
-    chance.replaceChildren(words, el("small", {}, "chance you'll reach 80 hours this month"));
+    chance.replaceChildren(words, el("small", {}, t("hrs.chanceSuffix")));
   }
   const filled = reached ? 10 : chanceInTen(result.probability).dots;
   dots.replaceChildren(...Array.from({ length: 10 }, (_, i) => el("span", { class: i < filled ? "filled" : "" })));
@@ -503,8 +514,8 @@ function drawForecast(result, total) {
   const low = Math.round(result.percentiles.p10);
   const high = Math.round(result.percentiles.p90);
   document.querySelector("#range").textContent = low === high
-    ? `You'll likely end with about ${low} hours.`
-    : `You'll likely end between ${low} and ${high} hours.`;
+    ? t("hrs.rangeAbout", { n: low })
+    : t("hrs.range", { low, high });
   document.querySelector("#basis").textContent = basisText(result.weeks_of_history);
 
   // What-if: already calculated; the button just reveals it.
@@ -515,8 +526,8 @@ function drawForecast(result, total) {
     const before = chanceInTen(result.probability).words.toLowerCase();
     const after = chanceInTen(result.what_if.probability).words;
     whatIfResult.textContent = after.toLowerCase() === before
-      ? `With one more ${WHAT_IF_HOURS}-hour shift: still ${before}. Every hour still counts toward 80.`
-      : `With one more ${WHAT_IF_HOURS}-hour shift: ${after.toLowerCase()} (up from ${before}).`;
+      ? t("hrs.whatIfSame", { h: WHAT_IF_HOURS, before })
+      : t("hrs.whatIfUp", { h: WHAT_IF_HOURS, after: after.toLowerCase(), before });
   }
 
   const showWays = !reached && result.probability < SHOW_WAYS_BELOW;
@@ -535,7 +546,7 @@ async function drawWays() {
   }
 
   const items = volunteerList.map((o) => {
-    const details = [o.city, o.hours_per_shift ? `${o.hours_per_shift}-hour shifts` : null]
+    const details = [o.city, o.hours_per_shift ? t("hrs.waysShift", { n: o.hours_per_shift }) : null]
       .filter(Boolean).join(" · ");
     return el("li", {},
       el("a", { href: o.url || "#", target: "_blank", rel: "noopener" },
@@ -548,8 +559,8 @@ async function drawWays() {
   // Always offer something real, even before volunteer.json is filled in.
   items.push(el("li", {},
     el("a", { href: "/" },
-      el("strong", {}, "Ask at a food pantry near you"),
-      el("span", {}, "Many pantries on the map need volunteers. Call and ask about shifts."),
+      el("strong", {}, t("hrs.waysPantry")),
+      el("span", {}, t("hrs.waysPantryText")),
     )));
 
   document.querySelector("#ways-list").replaceChildren(...items);
@@ -592,25 +603,41 @@ form.addEventListener("submit", (event) => {
   const hours = Number(hoursInput.value);
   const type = form.elements.type.value;
 
-  if (!date) return showError("Pick a date.");
-  if (date > toDateString(new Date())) return showError("You can't log hours for a future date.");
-  if (!hoursInput.value || !(hours > 0)) return showError("Enter how many hours, like 4 or 2.5.");
-  if (hours > 24) return showError("A day only has 24 hours. Please check the number.");
+  if (!date) return showError("hrs.errDate", dateInput);
+  if (date > toDateString(new Date())) return showError("hrs.errFuture", dateInput);
+  if (!hoursInput.value || !(hours > 0)) return showError("hrs.errHours", hoursInput);
+  if (hours > 24) return showError("hrs.errTooMany", hoursInput);
 
   entries.push({ id: newId(), date, hours: Math.round(hours * 100) / 100, type });
   lastDeleted = null;
   saveEntries();
 
-  errorBox.textContent = "";
+  showError(null);
   hoursInput.value = "";
   if (!date.startsWith(monthInfo().prefix)) {
-    showError(`Saved. That date isn't in this month, so it won't count toward this month's 80.`);
+    showError("hrs.otherMonth");
   }
   draw();
 });
 
-function showError(text) {
-  errorBox.textContent = text;
+// Errors are kept as keys so they re-translate; the field with the problem gets focus
+// and is marked invalid for screen readers.
+let errorKey = null;
+function showError(key, field = null) {
+  errorKey = key;
+  errorBox.textContent = key ? t(key) : "";
+  for (const input of [dateInput, hoursInput]) input.removeAttribute("aria-invalid");
+  if (field) {
+    field.setAttribute("aria-invalid", "true");
+    field.focus();
+  }
 }
+
+// Switching language redraws everything built here, and clears now-stale messages.
+document.addEventListener("pp:languagechange", () => {
+  draw();
+  if (errorKey) errorBox.textContent = t(errorKey);
+  document.querySelector("#pdf-message").textContent = "";
+});
 
 draw();

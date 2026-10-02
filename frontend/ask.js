@@ -1,5 +1,7 @@
 // Ask page: sends a question to POST /ask and shows the answer with its sources.
 // Plain JavaScript. Nothing is saved; refreshing the page clears the chat.
+// Page text comes from i18n.js. Labels inside a conversation (Sources/Fuentes, "thinking",
+// errors) follow the QUESTION's language, so they always match the answer next to them.
 
 const messages = document.querySelector("#messages");
 const form = document.querySelector("#composer");
@@ -24,23 +26,30 @@ function isSpanish(text) {
   return /[¿¡ñ]/i.test(text) || /\b(qué|cómo|dónde|cuándo|puedo|necesito|despensas?)\b/i.test(text);
 }
 
+// Text in a specific language (not the page language), for labels that match a question.
+function textIn(lang, key) {
+  return STRINGS[lang][key] ?? STRINGS.en[key];
+}
+
 // Show **bold** as real bold text. Built from text nodes, never innerHTML,
 // so an answer can't inject code into the page.
 function withBold(text) {
   return text.split(/\*\*(.+?)\*\*/g).map((part, i) => (i % 2 ? el("strong", {}, part) : part));
 }
 
-function addMessage(role, ...content) {
-  const item = el("li", { class: `msg ${role}` }, el("div", { class: "bubble" }, ...content));
+// `lang` on each bubble lets screen readers read Spanish answers with a Spanish voice.
+function addMessage(role, lang, ...content) {
+  const item = el("li", { class: `msg ${role}`, lang }, el("div", { class: "bubble" }, ...content));
   messages.append(item);
   item.scrollIntoView({ behavior: "smooth", block: "end" });
   return item;
 }
 
-function sourcesList(sources, spanish) {
+function sourcesList(sources, lang) {
   if (!sources.length) return null;
-  return el("ul", { class: "sources", "aria-label": spanish ? "Fuentes" : "Sources" },
-    el("li", { class: "sources-label" }, spanish ? "Fuentes" : "Sources"),
+  const label = textIn(lang, "ask.sources");
+  return el("ul", { class: "sources", "aria-label": label },
+    el("li", { class: "sources-label" }, label),
     ...sources.map((source, i) => {
       const number = el("span", { class: "num", "aria-hidden": "true" }, String(i + 1));
       // Every answer shows where it came from; a source without a link is shown as text.
@@ -51,16 +60,24 @@ function sourcesList(sources, spanish) {
   );
 }
 
+// Same messages as before, now in the question's language for the common cases.
+function errorText(status, body, lang) {
+  if (status === 429) return textIn(lang, "ask.errTooMany");
+  if (status === 503) return textIn(lang, "ask.errUnavailable");
+  return typeof body.detail === "string" ? body.detail : textIn(lang, "ask.errGeneric");
+}
+
 async function ask(question) {
-  const spanish = isSpanish(question);
+  const lang = isSpanish(question) ? "es" : "en";
   document.querySelector("#intro").hidden = true;
-  addMessage("user", question);
-  const waiting = addMessage("assistant",
-    el("span", { class: "visually-hidden" }, spanish ? "Buscando en fuentes confiables…" : "Looking through trusted sources…"),
+  addMessage("user", lang, question);
+  const waiting = addMessage("assistant", lang,
+    el("span", { class: "visually-hidden" }, textIn(lang, "ask.thinking")),
     el("span", { class: "thinking", "aria-hidden": "true" }, el("span"), el("span"), el("span")),
   );
 
   sendButton.disabled = true;
+  messages.setAttribute("aria-busy", "true");
   try {
     const response = await fetch("/ask", {
       method: "POST",
@@ -71,20 +88,16 @@ async function ask(question) {
     waiting.remove();
 
     if (!response.ok) {
-      const fallback = spanish
-        ? "Algo salió mal. Intente de nuevo o llame al 2-1-1."
-        : "Something went wrong. Please try again, or dial 2-1-1.";
-      addMessage("assistant error", typeof body.detail === "string" ? body.detail : fallback);
+      addMessage("assistant error", lang, errorText(response.status, body, lang));
       return;
     }
-    addMessage("assistant", ...withBold(body.answer), sourcesList(body.sources || [], spanish));
+    addMessage("assistant", lang, ...withBold(body.answer), sourcesList(body.sources || [], lang));
   } catch (error) {
     waiting.remove();
-    addMessage("assistant error", spanish
-      ? "No hay conexión. Revise su internet o llame al 2-1-1."
-      : "Couldn't connect. Check your internet, or dial 2-1-1.");
+    addMessage("assistant error", lang, textIn(lang, "ask.errNetwork"));
   } finally {
     sendButton.disabled = false;
+    messages.removeAttribute("aria-busy");
   }
 }
 
@@ -113,6 +126,21 @@ function resize() {
 }
 input.addEventListener("input", resize);
 
-for (const button of document.querySelectorAll(".starter")) {
-  button.addEventListener("click", () => ask(button.textContent.trim()));
+// Starter questions: the page language's questions first, then the other language's.
+function drawStarters() {
+  const first = getLang();
+  const second = first === "en" ? "es" : "en";
+  const buttons = [first, second].flatMap((lang) => STARTER_QUESTIONS[lang].map((question) => {
+    const button = el("button", { type: "button", class: "starter", lang }, question);
+    button.addEventListener("click", () => {
+      // The intro (and this button) disappears, so put keyboard focus somewhere useful.
+      input.focus();
+      ask(question);
+    });
+    return button;
+  }));
+  document.querySelector("#starters").replaceChildren(...buttons);
 }
+
+drawStarters();
+document.addEventListener("pp:languagechange", drawStarters);
