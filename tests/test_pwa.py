@@ -99,6 +99,7 @@ def test_publik_key_is_never_sent_to_the_browser(monkeypatch):
     secret = "pk_live_TEST_SECRET_should_never_appear"
     monkeypatch.setenv("PUBLIK_API_KEY", secret)
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
     paths = PAGES + ["/health", "/pantries", "/volunteer", "/manifest.json", "/sw.js", "/openapi.json"]
     paths += ["/" + p.name for p in FRONTEND.glob("*.js")] + ["/" + p.name for p in FRONTEND.glob("*.css")]
     for path in paths:
@@ -114,4 +115,4 @@ def test_no_key_is_hard_coded_in_the_project():
         if path.suffix in {".png", ".pyc"}:
             continue
         text = path.read_text(errors="ignore")
-        assert not re.search(r"pk_live_[A-Za-z0-9]{8,}|gsk_[A-Za-z0-9]{8,}|sk-ant-[A-Za-z0-9-]{8,}", text), path
+        assert not re.search(r"pk_live_[A-Za-z0-9]{8,}|gsk_[A-Za-z0-9]{8,}|sk-ant-[A-Za-z0-9-]{8,}|AIza[0-9A-Za-z_-]{30,}", text), path

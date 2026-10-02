@@ -7,7 +7,7 @@ The developer is a beginner. When helping: explain each step simply, keep change
 ## Features
 
 1. **Pantry Map**: a Leaflet + OpenStreetMap map of food pantries in Collin and Denton County, with an **"Open now"** filter based on each pantry's hours.
-2. **AI Assistant**: answers food-assistance questions (SNAP, WIC, pantries, school meals) using Claude (`anthropic` SDK) when ANTHROPIC_API_KEY is set, otherwise the publik API (OpenAI-compatible, `openai` SDK, base URL https://publikhq.com/api/v1, tier model `publik-balanced`). All AI calls go through `backend/llm.py`.
+2. **AI Assistant**: answers food-assistance questions (SNAP, WIC, pantries, school meals) using Claude (`anthropic` SDK) when ANTHROPIC_API_KEY is set, otherwise Google Gemini (GEMINI_API_KEY, OpenAI-compatible endpoint), otherwise the publik API (OpenAI-compatible, `openai` SDK, base URL https://publikhq.com/api/v1, tier model `publik-balanced`). All AI calls go through `backend/llm.py`.
 3. **Hours Coach**: SNAP recipients log work, volunteer, and training hours. A Monte Carlo simulation estimates their chance of reaching **80 hours this month**.
 
 ## Stack
@@ -46,7 +46,7 @@ AI_LOG.md    Log of what AI helped with and what the developer changed
 
 ## Project rules
 
-- **Never commit secrets.** API keys live in `.env` (git-ignored) as `PUBLIK_API_KEY` and optionally `ANTHROPIC_API_KEY` (on Vercel: project Settings → Environment Variables). Never hard-code it or send it to the frontend. `.env.example` shows the format with a placeholder.
+- **Never commit secrets.** API keys live in `.env` (git-ignored) as `GEMINI_API_KEY` (or `PUBLIK_API_KEY`) and optionally `ANTHROPIC_API_KEY` (on Vercel: project Settings → Environment Variables). Never hard-code it or send it to the frontend. `.env.example` shows the format with a placeholder.
 - The frontend never calls an AI API directly. It calls our FastAPI backend.
 - Pantry data must list where it came from and when it was last checked.
 - Log meaningful AI help in `AI_LOG.md` (the Congressional App Challenge asks about AI use).

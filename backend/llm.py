@@ -1,6 +1,7 @@
 """The one place PantryPilot talks to an AI model.
 
-Claude first (if ANTHROPIC_API_KEY is set), otherwise the publik API (PUBLIK_API_KEY).
+Claude first (if ANTHROPIC_API_KEY is set), then Google Gemini (GEMINI_API_KEY),
+then the publik API (PUBLIK_API_KEY). Gemini and publik both use the OpenAI-compatible client.
 Either way, generate_json() returns a Python dict matching ANSWER_SCHEMA.
 Keys come only from environment variables (.env locally, Vercel settings online);
 they are never hard-coded, logged, or sent to the browser.
@@ -15,7 +16,8 @@ import time
 from dotenv import load_dotenv
 
 from backend.config import (
-    CLAUDE_MODEL, MAX_ANSWER_TOKENS, PUBLIK_BASE_URL, PUBLIK_MODEL, PUBLIK_RETRY_SECONDS,
+    CLAUDE_MODEL, GEMINI_BASE_URL, GEMINI_MODEL, MAX_ANSWER_TOKENS, PUBLIK_BASE_URL, PUBLIK_MODEL,
+    PUBLIK_RETRY_SECONDS,
 )
 
 log = logging.getLogger("pantrypilot.llm")
@@ -41,6 +43,8 @@ class LLMUnavailable(Exception):
 def active_provider():
     if os.getenv("ANTHROPIC_API_KEY"):
         return "claude"
+    if os.getenv("GEMINI_API_KEY"):
+        return "gemini"
     if os.getenv("PUBLIK_API_KEY"):
         return "publik"
     return None
@@ -50,9 +54,11 @@ def generate_json(system, user):
     provider = active_provider()
     if provider == "claude":
         return _ask_claude(system, user)
+    if provider == "gemini":
+        return _ask_openai_compatible("Gemini", GEMINI_BASE_URL, GEMINI_MODEL, "GEMINI_API_KEY", system, user)
     if provider == "publik":
-        return _ask_publik(system, user)
-    raise LLMUnavailable("No AI key found. Add PUBLIK_API_KEY (or ANTHROPIC_API_KEY) to .env")
+        return _ask_openai_compatible("publik", PUBLIK_BASE_URL, PUBLIK_MODEL, "PUBLIK_API_KEY", system, user)
+    raise LLMUnavailable("No AI key found. Add GEMINI_API_KEY (or PUBLIK_API_KEY / ANTHROPIC_API_KEY) to .env")
 
 
 def _ask_claude(system, user):
@@ -87,13 +93,13 @@ def _ask_claude(system, user):
     return json.loads(text)  # structured output guarantees valid JSON
 
 
-def _ask_publik(system, user):
-    """Ask the publik API (OpenAI-compatible: https://publikhq.com/developers)."""
+def _ask_openai_compatible(name, base_url, model, key_env, system, user):
+    """Ask any OpenAI-compatible API: Gemini or publik (https://publikhq.com/developers)."""
     from openai import APIConnectionError, APIStatusError, OpenAI
 
     client = OpenAI(
-        api_key=os.environ["PUBLIK_API_KEY"],  # sent as "Authorization: Bearer ..."
-        base_url=PUBLIK_BASE_URL,
+        api_key=os.environ[key_env],  # sent as "Authorization: Bearer ..."
+        base_url=base_url,
         max_retries=0,  # we follow publik's own retry advice below instead
         timeout=25,     # seconds per try; worst case 25 + 10 wait + 25, within Vercel's function limit
     )
@@ -106,14 +112,14 @@ def _ask_publik(system, user):
     for attempt in (1, 2):
         try:
             response = client.chat.completions.create(
-                model=PUBLIK_MODEL,
+                model=model,
                 max_tokens=MAX_ANSWER_TOKENS,
                 response_format={"type": "json_object"},
                 messages=messages,
             )
             break
         except APIStatusError as error:
-            # publik docs: 503 is temporary, so retry once after 10 seconds.
+            # 503 is temporary (publik docs; Gemini too), so retry once after 10 seconds.
             if error.status_code == 503 and attempt == 1:
                 time.sleep(PUBLIK_RETRY_SECONDS)
                 continue
@@ -123,19 +129,21 @@ def _ask_publik(system, user):
                 # The SDK usually passes the inner "error" object as body; accept both shapes.
                 body = error.body if isinstance(error.body, dict) else {}
                 details = body.get("error", body) if isinstance(body.get("error", body), dict) else {}
-                log.error("publik balance empty: %s Top up: %s", details.get("message"), details.get("top_up_url"))
-            raise LLMUnavailable(f"publik API error {error.status_code}") from error
+                log.error("%s balance empty: %s Top up: %s", name, details.get("message"), details.get("top_up_url"))
+            else:
+                log.error("%s API error %s", name, error.status_code)  # e.g. 429 = free-tier limit reached
+            raise LLMUnavailable(f"{name} API error {error.status_code}") from error
         except APIConnectionError as error:
-            raise LLMUnavailable("Couldn't reach the publik API") from error
+            raise LLMUnavailable(f"Couldn't reach the {name} API") from error
 
     try:
         data = parse_json_answer(response.choices[0].message.content)
     except (ValueError, IndexError, TypeError, AttributeError) as error:
-        raise LLMUnavailable("publik answer wasn't valid JSON") from error
+        raise LLMUnavailable(f"{name} answer wasn't valid JSON") from error
 
     # JSON mode doesn't enforce our exact shape, so check it ourselves.
     if not isinstance(data.get("answer"), str) or not data["answer"].strip():
-        raise LLMUnavailable("publik answer was missing the answer text")
+        raise LLMUnavailable(f"{name} answer was missing the answer text")
     sources = data.get("used_sources", [])
     data["used_sources"] = [n for n in sources if isinstance(n, int)] if isinstance(sources, list) else []
     return data

@@ -60,6 +60,7 @@ class FakeOpenAI:
 def publik(monkeypatch):
     """Use publik (not Claude), with a fake key and a fake client. Returns a function to queue replies."""
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
     monkeypatch.setenv("PUBLIK_API_KEY", FAKE_KEY)
     monkeypatch.setattr(llm, "PUBLIK_RETRY_SECONDS", 0)  # don't really wait 10 seconds in tests
     FakeOpenAI.instances = []
@@ -73,6 +74,7 @@ def publik(monkeypatch):
 
 def test_publik_is_used_when_its_key_is_set(monkeypatch):
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
     monkeypatch.setenv("PUBLIK_API_KEY", FAKE_KEY)
     assert active_provider() == "publik"
 
@@ -85,6 +87,7 @@ def test_claude_still_wins_if_both_keys_are_set(monkeypatch):
 
 def test_no_key_means_unavailable_not_a_crash(monkeypatch):
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
     monkeypatch.delenv("PUBLIK_API_KEY", raising=False)
     assert active_provider() is None
     with pytest.raises(LLMUnavailable):
@@ -93,6 +96,7 @@ def test_no_key_means_unavailable_not_a_crash(monkeypatch):
 
 def test_groq_key_alone_no_longer_does_anything(monkeypatch):
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
     monkeypatch.delenv("PUBLIK_API_KEY", raising=False)
     monkeypatch.setenv("GROQ_API_KEY", "gsk_not_real")
     assert active_provider() is None
@@ -185,3 +189,37 @@ def test_connection_error_becomes_unavailable(publik):
     publik(openai.APIConnectionError(request=request))
     with pytest.raises(LLMUnavailable):
         generate_json("s", "u")
+
+
+# ---------- Gemini (same OpenAI-compatible code path) ----------
+
+GEMINI_FAKE = "AIza_test_not_a_real_key"
+
+
+def test_gemini_is_used_before_publik(monkeypatch):
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.setenv("GEMINI_API_KEY", GEMINI_FAKE)
+    monkeypatch.setenv("PUBLIK_API_KEY", FAKE_KEY)
+    assert active_provider() == "gemini"
+
+
+def test_gemini_request_uses_google_url_model_and_env_key(monkeypatch):
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.setenv("GEMINI_API_KEY", GEMINI_FAKE)
+    FakeOpenAI.instances = []
+    monkeypatch.setattr(openai, "OpenAI", lambda **kwargs: FakeOpenAI(['{"answer": "Hola", "used_sources": [1]}'], **kwargs))
+    assert generate_json("s", "u") == {"answer": "Hola", "used_sources": [1]}
+    client = FakeOpenAI.instances[0]
+    assert client.client_args["base_url"] == config.GEMINI_BASE_URL
+    assert client.client_args["base_url"].startswith("https://generativelanguage.googleapis.com/")
+    assert client.client_args["api_key"] == GEMINI_FAKE
+    assert client.calls[0]["model"] == config.GEMINI_MODEL
+
+
+def test_gemini_free_tier_limit_becomes_unavailable_and_is_logged(monkeypatch, caplog):
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.setenv("GEMINI_API_KEY", GEMINI_FAKE)
+    monkeypatch.setattr(openai, "OpenAI", lambda **kwargs: FakeOpenAI([status_error(429)], **kwargs))
+    with caplog.at_level(logging.ERROR, logger="pantrypilot.llm"), pytest.raises(LLMUnavailable):
+        generate_json("s", "u")
+    assert "Gemini API error 429" in caplog.text and GEMINI_FAKE not in caplog.text
