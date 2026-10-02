@@ -16,3 +16,7 @@ __pycache__/
 .DS_Store
 .vscode/
 .idea/
+# Vercel CLI: local project link and pulled env files
+.vercel
+.env*
+!.env.example

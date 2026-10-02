@@ -198,6 +198,10 @@ def test_vercel_config_points_at_the_app():
     # Every package the live site imports must be listed for Vercel too.
     live = {line.strip() for line in (root / "requirements.txt").read_text().splitlines() if line.strip()} - {"pytest"}
     assert live <= set(config["project"]["dependencies"])
-    assert "backend/main.py" in json.loads((root / "vercel.json").read_text())["functions"]
+    vercel = json.loads((root / "vercel.json").read_text())
+    # "fastapi" makes Vercel use pyproject's entrypoint, whatever the dashboard preset says.
+    # A "functions" key would be checked against the old api/ folder rules, which broke a deploy.
+    assert vercel["framework"] == "fastapi"
+    assert "functions" not in vercel
     ignored = (root / ".vercelignore").read_text().split()
     assert ".env" in ignored and "venv/" in ignored
