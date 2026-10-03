@@ -689,3 +689,10 @@ def test_211_questions_retrieve_the_official_211_source(question, monkeypatch):
     assert "free, anonymous social service hotline" in fake.calls[0][1]
     assert TWO_ONE_ONE_SOURCE in strip_quotes(result["sources"])
     assert fake.plans == []   # matched by keyword; no planning call needed
+
+
+def test_quotes_skip_the_provenance_note_and_pantry_name_lines():
+    doc = "Text below is copied word for word from the official Texas WIC website. WIC is for pregnant women and families with children up to age 5."
+    assert best_quote(doc, "who can get WIC").startswith("WIC is for pregnant")
+    pantry = "Name: Little Free Pantry\nAddress: 110 E Davis St, McKinney\nStatus right now: OPEN NOW\nHours: Open 24 hours, every day"
+    assert not best_quote(pantry, "how do i get food").startswith(("Name:", "Address:"))

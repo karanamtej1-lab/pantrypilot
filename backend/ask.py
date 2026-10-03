@@ -481,6 +481,9 @@ def best_quote(text, question, limit=220):
     """The sentence of a source that best matches the question, word for word (never reworded)."""
     terms = {t for t in query_terms(question) if t not in GENERIC_WORDS}
     pieces = [p.strip() for p in re.split(r"(?<=[.!?])\s+|\n+", text) if len(p.strip()) > 20]
+    # Skip our own provenance note and a pantry's bare name/address: they don't answer anything.
+    useful = [p for p in pieces if not p.startswith(("Text below is copied", "Name:", "Address:"))]
+    pieces = useful or pieces
     if not pieces:
         return text[:limit]
     best = max(pieces, key=lambda p: (len(terms & set(tokenize(p))), -pieces.index(p)))
