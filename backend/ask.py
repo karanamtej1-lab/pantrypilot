@@ -216,11 +216,13 @@ def parse_knowledge_file(path):
 
 def split_into_chunks(text, size=CHUNK_WORDS, overlap=CHUNK_OVERLAP):
     """~300-word pieces that overlap by 50 words."""
-    words = text.split()
+    # Each "word" keeps the spaces/line breaks after it, so chunks keep the page's line breaks
+    # (headings stay separate, and quotes match the official text exactly).
+    words = re.findall(r"\S+\s*", text)
     if not words:
         return []
     step = size - overlap
-    return [" ".join(words[start:start + size]) for start in range(0, max(len(words) - overlap, 1), step)]
+    return ["".join(words[start:start + size]).strip() for start in range(0, max(len(words) - overlap, 1), step)]
 
 
 def load_chunks(knowledge_dir=KNOWLEDGE_DIR):
@@ -229,6 +231,9 @@ def load_chunks(knowledge_dir=KNOWLEDGE_DIR):
         if path.suffix.lower() not in (".md", ".txt") or path.name.startswith("_"):
             continue
         title, url, body = parse_knowledge_file(path)
+        # Our provenance note (first paragraph, "Text below is copied...") is for people reading
+        # the file; it is not official text, so it is never searched, quoted, or sent to the AI.
+        body = re.sub(r"\A\s*Text below is copied[^\n]*\n", "", body)
         for text in split_into_chunks(body):
             # The title is part of what gets searched, so "WIC" in a title counts.
             chunks.append({"title": title, "url": url, "text": text,
@@ -480,8 +485,6 @@ def plan_search(question):
 def best_quote(text, question, limit=220):
     """The sentence of a source that best matches the question, word for word (never reworded)."""
     terms = {t for t in query_terms(question) if t not in GENERIC_WORDS}
-    # Drop our whole provenance note (the first paragraph of each knowledge file).
-    text = re.sub(r"^\s*Text below is copied.*?(\n\s*\n|$)", "", text, count=1, flags=re.DOTALL)
     pieces = [p.strip() for p in re.split(r"(?<=[.!?])\s+|\n+", text) if len(p.strip()) > 20]
     # Skip our own provenance note and a pantry's bare name/address: they don't answer anything.
     useful = [p for p in pieces if not p.startswith(("Text below is copied", "Name:", "Address:"))]

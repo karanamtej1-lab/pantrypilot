@@ -698,7 +698,17 @@ def test_quotes_skip_the_provenance_note_and_pantry_name_lines():
     assert not best_quote(pantry, "how do i get food").startswith(("Name:", "Address:"))
 
 
-def test_quotes_never_come_from_the_provenance_paragraph():
-    doc = ("Text below is copied word for word from the official page. Only Texas WIC can decide who qualifies. "
-           "Sections appear in a different order than on the page.\n\nApply at YourTexasBenefits.com.")
-    assert best_quote(doc, "how do I apply") == "Apply at YourTexasBenefits.com."
+def test_provenance_note_is_never_searched_quoted_or_sent():
+    chunks = load_chunks(KNOWLEDGE_DIR)
+    assert chunks and not any("Text below is copied" in c["text"] for c in chunks)
+    assert not any("Sections appear in a different order" in c["text"] for c in chunks)
+
+
+@pytest.mark.parametrize("question, expected_start", [
+    ("How do I apply for SNAP in Texas?", "Apply at YourTexasBenefits.com"),
+    ("¿Qué es WIC y quién puede recibirlo?", "WIC"),
+])
+def test_live_style_quotes_are_useful_official_sentences(question, expected_start, monkeypatch):
+    monkeypatch.setattr(ask, "generate_json", FakeAI(answer="x [1].", used=[1]))
+    quote = answer_question(question, now=MONDAY_10AM, pantries=[])["sources"][0]["quote"]
+    assert quote and quote.startswith(expected_start)
