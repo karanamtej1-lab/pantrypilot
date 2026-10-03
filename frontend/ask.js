@@ -31,10 +31,24 @@ function textIn(lang, key) {
   return STRINGS[lang][key] ?? STRINGS.en[key];
 }
 
-// Show **bold** as real bold text. Built from text nodes, never innerHTML,
-// so an answer can't inject code into the page.
-function withBold(text) {
-  return text.split(/\*\*(.+?)\*\*/g).map((part, i) => (i % 2 ? el("strong", {}, part) : part));
+// Show **bold** as real bold text, and [1] markers as links to the numbered sources.
+// Built from text nodes, never innerHTML, so an answer can't inject code into the page.
+let answerCount = 0;
+
+function renderAnswer(text, sources, lang, answerId) {
+  const nodes = [];
+  text.split(/\*\*(.+?)\*\*/g).forEach((part, i) => {
+    if (i % 2) { nodes.push(el("strong", {}, part)); return; }
+    part.split(/\[(\d+)\]/g).forEach((piece, j) => {
+      if (j % 2 === 0) { if (piece) nodes.push(piece); return; }
+      const n = Number(piece);
+      const source = sources[n - 1];
+      if (!source) return; // the server already removes these; never show a broken link
+      const label = textIn(lang, "ask.cite").replace("{n}", n).replace("{title}", source.title);
+      nodes.push(el("a", { class: "cite", href: `#${answerId}-src-${n}`, "aria-label": label, title: source.title }, String(n)));
+    });
+  });
+  return nodes;
 }
 
 // `lang` on each bubble lets screen readers read Spanish answers with a Spanish voice.
@@ -45,7 +59,7 @@ function addMessage(role, lang, ...content) {
   return item;
 }
 
-function sourcesList(sources, lang) {
+function sourcesList(sources, lang, answerId) {
   if (!sources.length) return null;
   const label = textIn(lang, "ask.sources");
   return el("ul", { class: "sources", "aria-label": label },
@@ -53,11 +67,28 @@ function sourcesList(sources, lang) {
     ...sources.map((source, i) => {
       const number = el("span", { class: "num", "aria-hidden": "true" }, String(i + 1));
       // Every answer shows where it came from; a source without a link is shown as text.
-      return el("li", {}, source.url
+      const title = source.url
         ? el("a", { href: source.url, target: "_blank", rel: "noopener" }, number, source.title)
-        : el("span", {}, number, source.title));
+        : el("span", {}, number, source.title);
+      // The exact sentence from the official source (never reworded).
+      const quote = source.quote ? el("blockquote", { class: "quote" }, `“${source.quote}”`) : null;
+      return el("li", { id: `${answerId}-src-${i + 1}`, tabindex: "-1" }, title, quote);
     }),
   );
+}
+
+// "How I found this": what was searched, so people can see the answer is grounded.
+function howFound(details, lang) {
+  if (!details) return null;
+  const lines = [];
+  if (details.official_sources?.length) lines.push(textIn(lang, "ask.foundOfficial").replace("{list}", details.official_sources.join("; ")));
+  if (details.planned_queries?.length) lines.push(textIn(lang, "ask.foundPlanned").replace("{list}", details.planned_queries.join("; ")));
+  if (details.pantries_checked) lines.push(textIn(lang, "ask.foundPantries").replace("{n}", details.pantries_checked));
+  if (details.pantry_filter?.length) lines.push(textIn(lang, "ask.foundFilter").replace("{list}", details.pantry_filter.join(", ")));
+  if (!lines.length) lines.push(textIn(lang, "ask.foundNothing"));
+  return el("details", { class: "how-found" },
+    el("summary", {}, textIn(lang, "ask.howFound")),
+    el("ul", {}, ...lines.map((line) => el("li", {}, line))));
 }
 
 // Same messages as before, now in the question's language for the common cases.
@@ -91,7 +122,10 @@ async function ask(question) {
       addMessage("assistant error", lang, errorText(response.status, body, lang));
       return;
     }
-    addMessage("assistant", lang, ...withBold(body.answer), sourcesList(body.sources || [], lang));
+    const answerId = `answer-${++answerCount}`;
+    const sources = body.sources || [];
+    addMessage("assistant", lang, ...renderAnswer(body.answer, sources, lang, answerId),
+      sourcesList(sources, lang, answerId), howFound(body.details, lang));
   } catch (error) {
     waiting.remove();
     addMessage("assistant error", lang, textIn(lang, "ask.errNetwork"));

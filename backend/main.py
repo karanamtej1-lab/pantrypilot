@@ -60,10 +60,17 @@ def find_origin(zip_code, lat, lng):
     if lat is not None:
         return {"lat": lat, "lng": lng, "source": "lat/lng"}
     if zip_code:
-        if zip_code not in ZIP_CENTROIDS:
-            raise HTTPException(404, f"ZIP code {zip_code} isn't in our Collin/Denton County list.")
-        point = ZIP_CENTROIDS[zip_code]
-        return {"lat": point["lat"], "lng": point["lng"], "source": f"zip {zip_code}"}
+        if zip_code in ZIP_CENTROIDS:
+            point = ZIP_CENTROIDS[zip_code]
+            return {"lat": point["lat"], "lng": point["lng"], "source": f"zip {zip_code}"}
+        # Some newer ZIPs (like 75033) aren't in the 2020 Census table. If we list pantries
+        # in that ZIP, use the middle of them as an approximate location.
+        located = [p for p in PANTRIES if p["zip"] == zip_code and p["lat"] is not None]
+        if located:
+            lat = sum(p["lat"] for p in located) / len(located)
+            lng = sum(p["lng"] for p in located) / len(located)
+            return {"lat": lat, "lng": lng, "source": f"zip {zip_code} (approximate)"}
+        raise HTTPException(404, f"ZIP code {zip_code} isn't in our Collin/Denton County list.")
     return None
 
 

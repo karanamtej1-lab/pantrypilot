@@ -205,3 +205,29 @@ def test_vercel_config_points_at_the_app():
     assert "functions" not in vercel
     ignored = (root / ".vercelignore").read_text().split()
     assert ".env" in ignored and "venv/" in ignored
+
+
+# ---------- real ZIP search (Census data in data/zip_centroids.json) ----------
+
+def test_real_zip_table_is_loaded():
+    assert len(main.ZIP_CENTROIDS) > 100
+    assert {"75070", "75034", "76201", "75074"} <= set(main.ZIP_CENTROIDS)
+
+
+def test_zip_search_sorts_by_distance():
+    body = client.get("/pantries", params={"zip": "76201"}).json()
+    assert body["origin"]["source"] == "zip 76201"
+    distances = [p["distance_miles"] for p in body["pantries"] if p["distance_miles"] is not None]
+    assert distances == sorted(distances) and distances[0] < 3   # Denton pantries are close by
+
+
+def test_zip_missing_from_census_uses_pantries_in_that_zip():
+    assert "75033" not in main.ZIP_CENTROIDS
+    body = client.get("/pantries", params={"zip": "75033"}).json()
+    assert body["origin"]["source"] == "zip 75033 (approximate)"
+    assert body["pantries"][0]["name"] == "Frisco Family Services Food Pantry"
+
+
+def test_zip_outside_the_area_is_still_a_clear_404():
+    response = client.get("/pantries", params={"zip": "90210"})
+    assert response.status_code == 404 and "isn't in our" in response.json()["detail"]

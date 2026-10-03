@@ -196,6 +196,13 @@ const STRINGS = {
     "ask.errTooMany": "You've asked a lot of questions. Please wait a few minutes, or dial 2-1-1.",
     "ask.errUnavailable": "The assistant isn't available right now. Please dial 2-1-1 for help.",
     "ask.offline": "You're offline. The assistant needs internet, but you can always call 2-1-1.",
+    "ask.cite": "Source {n}: {title}",
+    "ask.howFound": "How I found this",
+    "ask.foundOfficial": "Checked official sources: {list}",
+    "ask.foundPantries": "Checked {n} pantries with live open/closed status",
+    "ask.foundFilter": "Only pantries marked: {list}",
+    "ask.foundPlanned": "Searched official sources for: {list}",
+    "ask.foundNothing": "No official source matched, so I didn't answer from memory.",
   },
 
   es: {
@@ -385,6 +392,13 @@ const STRINGS = {
     "ask.errTooMany": "Ha hecho muchas preguntas. Espere unos minutos o llame al 2-1-1.",
     "ask.errUnavailable": "El asistente no está disponible ahora. Llame al 2-1-1 para recibir ayuda.",
     "ask.offline": "Está sin conexión. El asistente necesita internet, pero siempre puede llamar al 2-1-1.",
+    "ask.cite": "Fuente {n}: {title}",
+    "ask.howFound": "Cómo encontré esto",
+    "ask.foundOfficial": "Fuentes oficiales revisadas: {list}",
+    "ask.foundPantries": "Se revisaron {n} despensas con su estado actual (abierta/cerrada)",
+    "ask.foundFilter": "Solo despensas marcadas: {list}",
+    "ask.foundPlanned": "Búsqueda en fuentes oficiales: {list}",
+    "ask.foundNothing": "Ninguna fuente oficial coincidió, así que no respondí de memoria.",
   },
 };
 

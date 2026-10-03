@@ -16,6 +16,11 @@ from backend.llm import LLMUnavailable
 MONDAY_10AM = datetime(2026, 9, 28, 10, 0)
 
 
+def strip_quotes(sources):
+    """Source cards now carry a quote; compare just title + url."""
+    return [{"title": s["title"], "url": s["url"]} for s in sources]
+
+
 def write(folder, name, title, url, body):
     (folder / name).write_text(f"---\ntitle: {title}\nurl: {url}\n---\n{body}\n", encoding="utf-8")
 
@@ -33,12 +38,20 @@ def knowledge(tmp_path):
     return tmp_path
 
 
-class FakeAI:
-    """Stands in for Claude/publik and remembers what it was sent."""
-    def __init__(self, answer="Here is the answer.", used=(1,)):
-        self.answer, self.used, self.calls = answer, list(used), []
+OFF_TOPIC_PLAN = {"on_topic": False, "greeting": False, "eligibility": False,
+                  "wants_pantries": False, "city": "", "queries": []}
 
-    def __call__(self, system, user):
+
+class FakeAI:
+    """Stands in for the AI. `calls` = answer requests; `plans` = search-planning requests."""
+    def __init__(self, answer="Here is the answer.", used=(1,), plan=None):
+        self.answer, self.used, self.calls, self.plans = answer, list(used), [], []
+        self.plan = plan if plan is not None else OFF_TOPIC_PLAN
+
+    def __call__(self, system, user, schema=None):
+        if schema is ask.PLAN_SCHEMA:
+            self.plans.append(user)
+            return dict(self.plan)
         self.calls.append((system, user))
         return {"answer": self.answer, "used_sources": self.used}
 
@@ -173,7 +186,8 @@ def test_answer_uses_sources_and_returns_citations(knowledge, monkeypatch):
     fake = FakeAI(used=[1])
     monkeypatch.setattr(ask, "generate_json", fake)
     result = answer_question("What does WIC cover?", now=MONDAY_10AM, knowledge_dir=knowledge, pantries=[])
-    assert result == {"answer": "Here is the answer.", "sources": [{"title": "WIC Basics", "url": "https://example.gov/wic"}]}
+    assert result["answer"] == "Here is the answer."
+    assert strip_quotes(result["sources"]) == [{"title": "WIC Basics", "url": "https://example.gov/wic"}]
     assert "WIC helps pregnant women" in fake.calls[0][1]
 
 
@@ -182,8 +196,8 @@ def test_no_sources_means_not_sure_without_calling_the_ai(knowledge, monkeypatch
     monkeypatch.setattr(ask, "generate_json", fake)
     english = answer_question("volcano penguins", knowledge_dir=knowledge, pantries=[])
     spanish = answer_question("¿Qué hay de los pingüinos del volcán?", knowledge_dir=knowledge, pantries=[])
-    assert english == {"answer": NOT_SURE["en"], "sources": []}
-    assert spanish == {"answer": NOT_SURE["es"], "sources": []}
+    assert (english["answer"], english["sources"]) == (NOT_SURE["en"], [])
+    assert (spanish["answer"], spanish["sources"]) == (NOT_SURE["es"], [])
     assert fake.calls == []  # the AI never saw these
 
 
@@ -348,13 +362,14 @@ def test_eligibility_with_no_sources_gets_fixed_reply_not_the_ai(knowledge, monk
     assert fake.calls == []
 
 
-def test_eligibility_with_sources_goes_to_ai_under_the_no_deciding_rule(knowledge, monkeypatch):
+def test_eligibility_with_a_matching_source_still_gets_the_fixed_reply_plus_citation(knowledge, monkeypatch):
+    # A matching official page must NOT turn an eligibility question into an AI answer.
     fake = FakeAI(used=[1])
     monkeypatch.setattr(ask, "generate_json", fake)
-    answer_question("Am I eligible for SNAP if I am unemployed?", knowledge_dir=knowledge, pantries=[])
-    system_prompt, user_message = fake.calls[0]
-    assert "Never say whether a person is or is not eligible" in system_prompt
-    assert "SNAP helps people buy food" in user_message
+    result = answer_question("Am I eligible for SNAP if I am unemployed?", knowledge_dir=knowledge, pantries=[])
+    assert result["answer"] == ELIGIBILITY_REPLY["en"]
+    assert {"title": "SNAP Basics", "url": "https://example.gov/snap"} in result["sources"]
+    assert fake.calls == []
 
 
 def test_off_topic_still_gets_exact_not_sure(knowledge, monkeypatch):
@@ -385,3 +400,292 @@ def test_search_note_tells_ai_what_filter_was_used(knowledge, monkeypatch):
     monkeypatch.setattr(ask, "generate_json", fake)
     answer_question("Which pantries offer Spanish support?", now=MONDAY_10AM, knowledge_dir=knowledge)
     assert "Search note: pantries marked 'Spanish spoken' in our data" in fake.calls[0][1]
+
+
+# ---------- general food-help questions (live bug report, Oct 2) ----------
+
+@pytest.mark.parametrize("question", [
+    "how do i get food",
+    "Where can I find free food?",
+    "I'm hungry",
+    "¿Dónde puedo conseguir comida?",
+    "necesito comida para mis hijos",
+])
+def test_general_food_need_uses_the_pantry_data(question):
+    assert wants_pantries(question)
+
+
+@pytest.mark.parametrize("question", [
+    "How do I get food stamps?",                            # SNAP, not pantries
+    "Can I get food assistance if I am a college student?",  # keeps the fixed eligibility reply
+    "What is the capital of France?",
+    "What's the weather in Frisco today?",
+])
+def test_food_need_rule_does_not_catch_other_questions(question):
+    assert not wants_pantries(question)
+
+
+def test_how_do_i_get_food_reaches_the_ai_with_cited_pantries(knowledge, monkeypatch):
+    fake = FakeAI(answer="Here are pantries open now.", used=[1])
+    monkeypatch.setattr(ask, "generate_json", fake)
+    result = answer_question("how do i get food", now=MONDAY_10AM, knowledge_dir=knowledge)
+    assert fake.calls, "the question should reach the AI"
+    assert "Status right now:" in fake.calls[0][1]        # grounded in the pantry list
+    assert result["sources"]                              # and cited
+
+
+def test_spanish_wic_question_reaches_the_ai_when_a_wic_source_exists(knowledge, monkeypatch):
+    # The `knowledge` fixture includes a WIC source file.
+    fake = FakeAI(answer="WIC ayuda a familias.", used=[1])
+    monkeypatch.setattr(ask, "generate_json", fake)
+    result = answer_question("¿Qué es WIC y quién puede recibirlo?", knowledge_dir=knowledge, pantries=[])
+    assert "WIC helps pregnant women" in fake.calls[0][1]   # the trusted WIC text was retrieved
+    assert "Reply in: Spanish" in fake.calls[0][1]
+    assert strip_quotes(result["sources"]) == [{"title": "WIC Basics", "url": "https://example.gov/wic"}]
+
+
+def test_spanish_wic_question_without_a_wic_source_still_falls_back(tmp_path, monkeypatch):
+    fake = FakeAI()
+    monkeypatch.setattr(ask, "generate_json", fake)
+    result = answer_question("¿Qué es WIC y quién puede recibirlo?", knowledge_dir=tmp_path, pantries=[])
+    assert (result["answer"], result["sources"]) == (NOT_SURE["es"], [])
+    assert fake.calls == []   # grounding rule: no trusted source -> the AI is never asked
+
+
+def test_unrelated_question_still_gets_the_safe_fallback(knowledge, monkeypatch):
+    fake = FakeAI()
+    monkeypatch.setattr(ask, "generate_json", fake)
+    result = answer_question("What is the capital of France?", knowledge_dir=knowledge)
+    assert (result["answer"], result["sources"]) == (NOT_SURE["en"], [])
+    assert fake.calls == []
+
+
+# ---------- the real official sources in knowledge/ (Oct 2) ----------
+
+from backend.ask import KNOWLEDGE_DIR
+
+WIC_SOURCE = {"title": "Apply for WIC - Texas WIC (Texas Health and Human Services)",
+              "url": "https://www.texaswic.org/apply"}
+SNAP_SOURCE = {"title": "SNAP Food Benefits - Texas Health and Human Services",
+               "url": "https://www.hhs.texas.gov/services/food/snap-food-benefits"}
+
+
+@pytest.mark.parametrize("name, url", [("wic.md", WIC_SOURCE["url"]), ("snap.md", SNAP_SOURCE["url"])])
+def test_official_sources_use_the_example_format(name, url):
+    title, parsed_url, body = parse_knowledge_file(KNOWLEDGE_DIR / name)
+    assert parsed_url == url and title
+    assert "Only Texas" in body          # the file itself says only the agency decides
+
+
+def test_spanish_wic_question_retrieves_wic_source_and_reaches_ai(monkeypatch):
+    fake = FakeAI(answer="WIC es para mujeres embarazadas y niños menores de 5 años.", used=[1])
+    monkeypatch.setattr(ask, "generate_json", fake)
+    result = answer_question("¿Qué es WIC y quién puede recibirlo?", now=MONDAY_10AM, pantries=[])
+    prompt = fake.calls[0][1]
+    assert "WIC is for pregnant, postpartum and breastfeeding women" in prompt   # official text sent
+    assert "Reply in: Spanish" in prompt
+    assert strip_quotes(result["sources"]) == [WIC_SOURCE]                       # cited
+
+
+@pytest.mark.parametrize("question", ["How do I apply for SNAP in Texas?", "What is SNAP?", "How do I get food stamps?",
+                                      "¿Cómo solicito SNAP en Texas?"])
+def test_basic_snap_questions_retrieve_the_snap_source(question, monkeypatch):
+    fake = FakeAI(answer="Apply at YourTexasBenefits.com.", used=[1])
+    monkeypatch.setattr(ask, "generate_json", fake)
+    chunks, idf = ask.knowledge_index()
+    assert SNAP_SOURCE["title"] in {c["title"] for c in top_chunks(question, chunks, idf)}
+    result = answer_question(question, now=MONDAY_10AM, pantries=[])
+    assert "Apply at YourTexasBenefits.com" in fake.calls[0][1]
+    assert result["sources"] and result["sources"][0]["url"].startswith("https://")
+
+
+@pytest.mark.parametrize("question", [
+    "Who is the richest person in the world?",   # "person" appears in the SNAP page; must not count
+    "What is the capital of France?",
+    "How do I learn Python?",
+    "What's the weather in Frisco today?",
+])
+def test_unsupported_questions_still_get_the_211_fallback(question, monkeypatch):
+    fake = FakeAI()
+    monkeypatch.setattr(ask, "generate_json", fake)
+    assert answer_question(question, now=MONDAY_10AM)["answer"] == NOT_SURE["en"]
+    assert fake.calls == []
+
+
+@pytest.mark.parametrize("question, lang", [
+    ("Am I eligible for SNAP if I make $2,000 per month?", "en"),
+    ("Can I get food assistance if I am a college student?", "en"),
+    ("¿Califico para WIC si estoy embarazada?", "es"),
+])
+def test_eligibility_questions_get_the_fixed_reply_with_official_citation(question, lang, monkeypatch):
+    fake = FakeAI()
+    monkeypatch.setattr(ask, "generate_json", fake)
+    result = answer_question(question, now=MONDAY_10AM)
+    assert result["answer"] == ELIGIBILITY_REPLY[lang]
+    assert result["sources"] and all(s in (WIC_SOURCE, SNAP_SOURCE) for s in result["sources"])
+    assert fake.calls == []   # the AI never sees eligibility questions next to the income charts
+
+
+def test_pantry_questions_are_not_padded_with_program_pages(monkeypatch):
+    fake = FakeAI(used=[])
+    monkeypatch.setattr(ask, "generate_json", fake)
+    answer_question("How can I find a food pantry near me?", now=MONDAY_10AM)
+    prompt = fake.calls[0][1]
+    assert "Status right now:" in prompt and "SNAP Food Benefits" not in prompt
+
+
+@pytest.mark.parametrize("question, expected", [
+    ("Am I eligible for SNAP if I make $2,000 per month?", [SNAP_SOURCE]),
+    ("¿Califico para WIC si estoy embarazada?", [WIC_SOURCE]),
+])
+def test_eligibility_cites_the_program_it_names(question, expected, monkeypatch):
+    monkeypatch.setattr(ask, "generate_json", FakeAI())
+    assert answer_question(question, now=MONDAY_10AM)["sources"] == expected
+
+
+# ---------- Simplicity-style pipeline: greeting, planner, strict citations ----------
+
+from backend.ask import best_quote, is_greeting, link_citations, plan_search
+
+
+@pytest.mark.parametrize("question, expected", [
+    ("hi", True), ("Hello!", True), ("hola", True), ("buenos días", True), ("hey there", True),
+    ("hi, which pantries are open?", False), ("What is WIC?", False),
+])
+def test_is_greeting(question, expected):
+    assert is_greeting(question) is expected
+
+
+def test_greeting_gets_a_friendly_reply_without_the_ai(monkeypatch):
+    fake = FakeAI()
+    monkeypatch.setattr(ask, "generate_json", fake)
+    assert answer_question("hi")["answer"] == ask.GREETING_REPLY["en"]
+    assert answer_question("hola")["answer"] == ask.GREETING_REPLY["es"]
+    assert fake.calls == [] and fake.plans == []
+
+
+def test_planner_finds_official_source_when_keywords_miss(monkeypatch):
+    # No keyword hits, but the planner suggests a search; code retrieves the TRUSTED WIC page.
+    plan = {"on_topic": True, "greeting": False, "eligibility": False, "wants_pantries": False,
+            "city": "", "queries": ["WIC who can apply"]}
+    fake = FakeAI(answer="WIC serves pregnant women and young children [1].", used=[1], plan=plan)
+    monkeypatch.setattr(ask, "generate_json", fake)
+    result = answer_question("my baby needs formula, can anyone help?", now=MONDAY_10AM, pantries=[])
+    assert fake.plans and fake.calls
+    assert "WIC is for pregnant, postpartum and breastfeeding women" in fake.calls[0][1]
+    assert strip_quotes(result["sources"]) == [WIC_SOURCE]
+    assert result["details"]["used_planner"] and result["details"]["planned_queries"] == ["WIC who can apply"]
+
+
+def test_planner_cannot_add_facts_only_search_words(monkeypatch):
+    # Even a planner "query" that states a false fact only CHOOSES official text:
+    # the planner's own words never appear among the sources the AI answers from.
+    fake_fact = "everyone qualifies for free money"
+    plan = {"on_topic": True, "greeting": False, "eligibility": False, "wants_pantries": False,
+            "city": "", "queries": [fake_fact]}
+    fake = FakeAI(used=[1], plan=plan)
+    monkeypatch.setattr(ask, "generate_json", fake)
+    result = answer_question("tell me something nice", now=MONDAY_10AM, pantries=[])
+    sources_section = fake.calls[0][1].split("SOURCES:")[1].split("QUESTION:")[0]
+    assert fake_fact not in sources_section
+    assert all(s in (WIC_SOURCE, SNAP_SOURCE) for s in strip_quotes(result["sources"]))
+
+
+def test_planner_failure_falls_back_safely(monkeypatch):
+    def broken(system, user, schema=None):
+        raise LLMUnavailable("down")
+    monkeypatch.setattr(ask, "generate_json", broken)
+    assert answer_question("something unusual about food help", pantries=[])["answer"] == NOT_SURE["en"]
+
+
+def test_planner_garbage_is_ignored(monkeypatch):
+    monkeypatch.setattr(ask, "generate_json", lambda s, u, schema=None: {"on_topic": "yes please"})
+    assert plan_search("anything") is None
+
+
+def test_planner_eligibility_flag_keeps_the_fixed_reply(monkeypatch):
+    plan = {"on_topic": True, "greeting": False, "eligibility": True, "wants_pantries": False,
+            "city": "", "queries": ["SNAP income limits"]}
+    fake = FakeAI(plan=plan)
+    monkeypatch.setattr(ask, "generate_json", fake)
+    result = answer_question("would they help me with my paycheck situation", now=MONDAY_10AM, pantries=[])
+    assert result["answer"] == ELIGIBILITY_REPLY["en"] and fake.calls == []
+
+
+def test_planner_city_narrows_pantries(monkeypatch):
+    plan = {"on_topic": True, "greeting": False, "eligibility": False, "wants_pantries": True,
+            "city": "Denton", "queries": []}
+    fake = FakeAI(used=[1], plan=plan)
+    monkeypatch.setattr(ask, "generate_json", fake)
+    result = answer_question("my kids are starving tonight, I'm by the university", now=MONDAY_10AM)
+    assert "Denton" in fake.calls[0][1] and result["details"]["pantries_checked"] > 0
+
+
+def test_planner_is_not_used_when_keywords_already_found_something(monkeypatch):
+    fake = FakeAI(used=[1])
+    monkeypatch.setattr(ask, "generate_json", fake)
+    answer_question("How do I apply for SNAP in Texas?", now=MONDAY_10AM, pantries=[])
+    assert fake.plans == []   # one AI call, not two
+
+
+# ---------- strict citations (ported from Simplicity's citationParser) ----------
+
+SRC = [{"title": "A", "url": "u1", "text": "Alpha fact here."},
+       {"title": "B", "url": "u2", "text": "Beta fact here."},
+       {"title": "A", "url": "u1", "text": "Another alpha chunk."}]
+
+
+def test_citations_are_renumbered_to_the_returned_list():
+    text, cited = link_citations("Beta [2]. Alpha [1].", [], SRC, "q")
+    assert text == "Beta [1]. Alpha [2]."
+    assert [c["title"] for c in cited] == ["B", "A"]
+
+
+def test_invalid_citation_numbers_are_dropped_and_text_kept():
+    text, cited = link_citations("Fact [9]. Also [2][7].", [], SRC, "q")
+    assert text == "Fact . Also [1]."
+    assert [c["title"] for c in cited] == ["B"]
+
+
+def test_non_citation_brackets_are_never_touched():
+    original = "Bring ID [Note] and $10,000-40,000 [3.14] [x]."
+    text, _ = link_citations(original, [], SRC, "q")
+    assert text == original
+
+
+def test_two_chunks_of_the_same_page_become_one_citation():
+    text, cited = link_citations("One [1]. Two [3].", [], SRC, "q")
+    assert text == "One [1]. Two [1]." and len(cited) == 1
+
+
+def test_used_sources_without_markers_are_still_cited():
+    _, cited = link_citations("No markers here.", [2], SRC, "q")
+    assert [c["title"] for c in cited] == ["B"]
+
+
+def test_quote_is_word_for_word_from_the_source():
+    text = "WIC is for pregnant women. Recipes and cooking demonstrations are also available."
+    quote = best_quote(text, "what does WIC offer for cooking recipes")
+    assert quote == "Recipes and cooking demonstrations are also available." and quote in text
+
+
+def test_answer_quotes_come_from_the_official_text(monkeypatch):
+    fake = FakeAI(answer="Apply online [1].", used=[1])
+    monkeypatch.setattr(ask, "generate_json", fake)
+    result = answer_question("How do I apply for SNAP in Texas?", now=MONDAY_10AM, pantries=[])
+    official = (KNOWLEDGE_DIR / "snap.md").read_text()
+    assert result["sources"][0]["quote"].rstrip("…") in official
+
+
+TWO_ONE_ONE_SOURCE = {"title": "About 2-1-1 Texas - Texas Health and Human Services Commission",
+                      "url": "https://www.211texas.org/about-2-1-1/"}
+
+
+@pytest.mark.parametrize("question", ["What is 2-1-1 Texas used for?", "¿Qué es el 2-1-1 de Texas?", "what is 211"])
+def test_211_questions_retrieve_the_official_211_source(question, monkeypatch):
+    fake = FakeAI(answer="2-1-1 is a free hotline [1].", used=[1])
+    monkeypatch.setattr(ask, "generate_json", fake)
+    result = answer_question(question, now=MONDAY_10AM, pantries=[])
+    assert "free, anonymous social service hotline" in fake.calls[0][1]
+    assert TWO_ONE_ONE_SOURCE in strip_quotes(result["sources"])
+    assert fake.plans == []   # matched by keyword; no planning call needed

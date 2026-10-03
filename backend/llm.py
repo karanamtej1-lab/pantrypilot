@@ -2,7 +2,7 @@
 
 Claude first (if ANTHROPIC_API_KEY is set), then Google Gemini (GEMINI_API_KEY),
 then the publik API (PUBLIK_API_KEY). Gemini and publik both use the OpenAI-compatible client.
-Either way, generate_json() returns a Python dict matching ANSWER_SCHEMA.
+generate_json() returns a Python dict matching the schema it's given (ANSWER_SCHEMA by default).
 Keys come only from environment variables (.env locally, Vercel settings online);
 they are never hard-coded, logged, or sent to the browser.
 """
@@ -50,18 +50,19 @@ def active_provider():
     return None
 
 
-def generate_json(system, user):
+def generate_json(system, user, schema=None):
+    schema = schema or ANSWER_SCHEMA
     provider = active_provider()
     if provider == "claude":
-        return _ask_claude(system, user)
+        return _ask_claude(system, user, schema)
     if provider == "gemini":
-        return _ask_openai_compatible("Gemini", GEMINI_BASE_URL, GEMINI_MODEL, "GEMINI_API_KEY", system, user)
+        return _ask_openai_compatible("Gemini", GEMINI_BASE_URL, GEMINI_MODEL, "GEMINI_API_KEY", system, user, schema)
     if provider == "publik":
-        return _ask_openai_compatible("publik", PUBLIK_BASE_URL, PUBLIK_MODEL, "PUBLIK_API_KEY", system, user)
+        return _ask_openai_compatible("publik", PUBLIK_BASE_URL, PUBLIK_MODEL, "PUBLIK_API_KEY", system, user, schema)
     raise LLMUnavailable("No AI key found. Add GEMINI_API_KEY (or PUBLIK_API_KEY / ANTHROPIC_API_KEY) to .env")
 
 
-def _ask_claude(system, user):
+def _ask_claude(system, user, schema=None):
     import anthropic
 
     client = anthropic.Anthropic()
@@ -73,7 +74,7 @@ def _ask_claude(system, user):
             messages=[{"role": "user", "content": user}],
             output_config={
                 "effort": "low",  # short factual answers from given text don't need deep thinking
-                "format": {"type": "json_schema", "schema": ANSWER_SCHEMA},
+                "format": {"type": "json_schema", "schema": schema or ANSWER_SCHEMA},
             },
             # If a safety check declines the request, let Anthropic retry it on
             # its recommended fallback model instead of just failing.
@@ -93,7 +94,8 @@ def _ask_claude(system, user):
     return json.loads(text)  # structured output guarantees valid JSON
 
 
-def _ask_openai_compatible(name, base_url, model, key_env, system, user):
+def _ask_openai_compatible(name, base_url, model, key_env, system, user, schema=None):
+    schema = schema or ANSWER_SCHEMA
     """Ask any OpenAI-compatible API: Gemini or publik (https://publikhq.com/developers)."""
     from openai import APIConnectionError, APIStatusError, OpenAI
 
@@ -104,8 +106,8 @@ def _ask_openai_compatible(name, base_url, model, key_env, system, user):
         timeout=25,     # seconds per try; worst case 25 + 10 wait + 25, within Vercel's function limit
     )
     messages = [
-        {"role": "system", "content": system + "\n\nReply with ONLY a JSON object: "
-         '{"answer": "...", "used_sources": [1, 2]}'},
+        {"role": "system", "content": system + "\n\nReply with ONLY a JSON object with these keys: "
+         + json.dumps(schema["properties"])},
         {"role": "user", "content": user},
     ]
 
@@ -142,6 +144,8 @@ def _ask_openai_compatible(name, base_url, model, key_env, system, user):
         raise LLMUnavailable(f"{name} answer wasn't valid JSON") from error
 
     # JSON mode doesn't enforce our exact shape, so check it ourselves.
+    if schema is not ANSWER_SCHEMA:
+        return data  # other shapes (like the search plan) are checked by the caller
     if not isinstance(data.get("answer"), str) or not data["answer"].strip():
         raise LLMUnavailable(f"{name} answer was missing the answer text")
     sources = data.get("used_sources", [])

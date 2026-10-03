@@ -118,3 +118,28 @@
 .send:disabled { opacity: 0.5; cursor: wait; }
 
 .composer-note { grid-column: 1 / -1; margin: 0; font-size: 0.75rem; color: var(--muted); text-align: center; }
+
+/* ---------- inline citations, official quotes, "How I found this" ---------- */
+
+.cite {
+  display: inline-grid; place-items: center;
+  min-width: 1.35em; height: 1.35em; padding: 0 0.3em; margin: 0 0.1em;
+  vertical-align: 0.15em;
+  font-size: 0.72em; font-weight: 700; text-decoration: none;
+  color: var(--accent); background: var(--accent-soft);
+  border-radius: 999px;
+}
+.cite:hover, .cite:focus-visible { background: var(--accent); color: #fff; }
+
+.sources li { scroll-margin-top: 120px; }
+.sources li:target { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+.quote {
+  margin: 4px 0 2px 26px; padding-left: 10px;
+  border-left: 3px solid var(--control-border);
+  color: var(--muted); font-size: 0.85rem; font-style: italic;
+  white-space: normal;
+}
+
+.how-found { margin-top: 10px; font-size: 0.85rem; color: var(--muted); white-space: normal; }
+.how-found summary { cursor: pointer; font-weight: 600; min-height: 32px; display: flex; align-items: center; }
+.how-found ul { margin: 4px 0 0; padding-left: 18px; }
