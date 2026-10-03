@@ -480,6 +480,8 @@ def plan_search(question):
 def best_quote(text, question, limit=220):
     """The sentence of a source that best matches the question, word for word (never reworded)."""
     terms = {t for t in query_terms(question) if t not in GENERIC_WORDS}
+    # Drop our whole provenance note (the first paragraph of each knowledge file).
+    text = re.sub(r"^\s*Text below is copied.*?(\n\s*\n|$)", "", text, count=1, flags=re.DOTALL)
     pieces = [p.strip() for p in re.split(r"(?<=[.!?])\s+|\n+", text) if len(p.strip()) > 20]
     # Skip our own provenance note and a pantry's bare name/address: they don't answer anything.
     useful = [p for p in pieces if not p.startswith(("Text below is copied", "Name:", "Address:"))]

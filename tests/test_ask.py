@@ -696,3 +696,9 @@ def test_quotes_skip_the_provenance_note_and_pantry_name_lines():
     assert best_quote(doc, "who can get WIC").startswith("WIC is for pregnant")
     pantry = "Name: Little Free Pantry\nAddress: 110 E Davis St, McKinney\nStatus right now: OPEN NOW\nHours: Open 24 hours, every day"
     assert not best_quote(pantry, "how do i get food").startswith(("Name:", "Address:"))
+
+
+def test_quotes_never_come_from_the_provenance_paragraph():
+    doc = ("Text below is copied word for word from the official page. Only Texas WIC can decide who qualifies. "
+           "Sections appear in a different order than on the page.\n\nApply at YourTexasBenefits.com.")
+    assert best_quote(doc, "how do I apply") == "Apply at YourTexasBenefits.com."
