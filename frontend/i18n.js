@@ -203,6 +203,14 @@ const STRINGS = {
     "ask.foundFilter": "Only pantries marked: {list}",
     "ask.foundPlanned": "Searched official sources for: {list}",
     "ask.foundNothing": "No official source matched, so I didn't answer from memory.",
+    "ask.call": "Call",
+    "ask.directions": "Directions",
+    "ask.suggestions": "You could also ask",
+    "ask.voice": "Speak your question",
+    "ask.voiceStop": "Stop listening",
+    "ask.voiceNote": "Voice typing uses your browser's speech service. Check the words before you send.",
+    "ask.listen": "Listen",
+    "ask.stopListening": "Stop reading",
   },
 
   es: {
@@ -399,6 +407,14 @@ const STRINGS = {
     "ask.foundFilter": "Solo despensas marcadas: {list}",
     "ask.foundPlanned": "Búsqueda en fuentes oficiales: {list}",
     "ask.foundNothing": "Ninguna fuente oficial coincidió, así que no respondí de memoria.",
+    "ask.call": "Llamar",
+    "ask.directions": "Cómo llegar",
+    "ask.suggestions": "También puede preguntar",
+    "ask.voice": "Diga su pregunta",
+    "ask.voiceStop": "Dejar de escuchar",
+    "ask.voiceNote": "El dictado por voz usa el servicio de voz de su navegador. Revise las palabras antes de enviar.",
+    "ask.listen": "Escuchar",
+    "ask.stopListening": "Dejar de leer",
   },
 };
 
@@ -414,6 +430,26 @@ const STARTER_QUESTIONS = {
     "¿Qué es WIC y quién puede recibirlo?",
     "¿Qué despensas de comida hay en McKinney?",
   ],
+};
+
+// Follow-up questions shown under answers. Each one is answerable from PantryPilot's own
+// sources (the official pages in knowledge/ or the pantry list), so a suggestion never leads
+// to "not sure". Grouped by what the answer was based on.
+const SUGGESTED_QUESTIONS = {
+  en: {
+    snap: ["What can I buy with SNAP?", "What are the SNAP work rules?", "How much SNAP can a family get?"],
+    wic: ["How do I apply for WIC?", "What does WIC give families?", "What happens at the first WIC appointment?"],
+    two11: ["Which food pantries are open today?", "How do I apply for SNAP in Texas?"],
+    pantry: ["Which pantries are open right now?", "Which pantries don't require ID?", "Which pantries have drive-thru?"],
+    general: ["Which food pantries are open today?", "How do I apply for SNAP in Texas?", "What does WIC give families?"],
+  },
+  es: {
+    snap: ["¿Qué puedo comprar con SNAP?", "¿Cuáles son las reglas de trabajo de SNAP?", "¿Cuánto SNAP puede recibir una familia?"],
+    wic: ["¿Cómo solicito WIC?", "¿Qué es WIC y quién puede recibirlo?", "¿Qué pasa en la primera cita de WIC?"],
+    two11: ["¿Qué despensas de comida están abiertas hoy?", "¿Cómo solicito SNAP en Texas?"],
+    pantry: ["¿Qué despensas están abiertas ahora?", "¿Qué despensas no piden identificación?", "¿Qué despensas tienen servicio desde el auto?"],
+    general: ["¿Qué despensas de comida están abiertas hoy?", "¿Cómo solicito SNAP en Texas?", "¿Qué es WIC y quién puede recibirlo?"],
+  },
 };
 
 // ---------- saving choices (works even when storage is blocked) ----------

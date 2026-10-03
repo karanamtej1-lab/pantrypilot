@@ -2,6 +2,8 @@
 
 from datetime import datetime
 
+from pathlib import Path
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -227,14 +229,14 @@ def reset_rate_limit():
 
 
 def test_ask_endpoint(monkeypatch):
-    monkeypatch.setattr(main, "answer_question", lambda q: {"answer": f"echo {q}", "sources": []})
+    monkeypatch.setattr(main, "answer_question", lambda q, **kw: {"answer": f"echo {q}", "sources": []})
     response = client.post("/ask", json={"question": "  What is SNAP?  "})
     assert response.status_code == 200
     assert response.json() == {"answer": "echo What is SNAP?", "sources": []}
 
 
 def test_ask_when_ai_is_down_points_to_211(monkeypatch):
-    def broken(question):
+    def broken(question, **kw):
         raise LLMUnavailable("no key")
     monkeypatch.setattr(main, "answer_question", broken)
     response = client.post("/ask", json={"question": "What is SNAP?"})
@@ -247,7 +249,7 @@ def test_ask_rejects_empty_or_huge_questions(question):
 
 
 def test_ask_rate_limit(monkeypatch):
-    monkeypatch.setattr(main, "answer_question", lambda q: {"answer": "ok", "sources": []})
+    monkeypatch.setattr(main, "answer_question", lambda q, **kw: {"answer": "ok", "sources": []})
     codes = [client.post("/ask", json={"question": "hi there"}).status_code for _ in range(main.ASK_LIMIT + 1)]
     assert codes[:-1] == [200] * main.ASK_LIMIT and codes[-1] == 429
 
@@ -712,3 +714,57 @@ def test_live_style_quotes_are_useful_official_sentences(question, expected_star
     monkeypatch.setattr(ask, "generate_json", FakeAI(answer="x [1].", used=[1]))
     quote = answer_question(question, now=MONDAY_10AM, pantries=[])["sources"][0]["quote"]
     assert quote and quote.startswith(expected_start)
+
+
+# ---------- follow-up questions and pantry action buttons ----------
+
+def test_follow_up_uses_the_earlier_question_through_the_planner(monkeypatch):
+    plan = {"on_topic": True, "greeting": False, "eligibility": False, "wants_pantries": True,
+            "city": "Denton", "queries": []}
+    fake = FakeAI(used=[1], plan=plan)
+    monkeypatch.setattr(ask, "generate_json", fake)
+    result = answer_question("what about the other city?", now=MONDAY_10AM,
+                             previous="Which pantries are open today in Plano?")
+    assert "EARLIER QUESTION:\nWhich pantries are open today in Plano?" in fake.plans[0]
+    assert "EARLIER QUESTION (for context only)" in fake.calls[0][1]
+    assert "Denton" in fake.calls[0][1] and result["details"]["pantries_checked"] > 0
+
+
+def test_earlier_question_is_ignored_when_the_new_one_stands_alone(monkeypatch):
+    fake = FakeAI(used=[1])
+    monkeypatch.setattr(ask, "generate_json", fake)
+    answer_question("How do I apply for SNAP in Texas?", now=MONDAY_10AM, pantries=[], previous="hi")
+    assert fake.plans == [] and "EARLIER QUESTION" not in fake.calls[0][1]
+
+
+def test_pantry_cards_have_call_and_directions(monkeypatch):
+    fake = FakeAI(answer="Go here [1].", used=[1])
+    monkeypatch.setattr(ask, "generate_json", fake)
+    pantries = [p for p in main.PANTRIES if p["name"] == "Salvation Army Denton"]
+    card = answer_question("Which pantries are in Denton?", now=MONDAY_10AM, pantries=pantries)["sources"][0]
+    assert card["kind"] == "pantry" and card["phone"] == "(940) 566-3800"
+    assert card["directions"].startswith("https://www.google.com/maps/dir/?api=1&destination=")
+    assert "1508+E+McKinney+St" in card["directions"]
+
+
+def test_official_cards_are_marked_official(monkeypatch):
+    monkeypatch.setattr(ask, "generate_json", FakeAI(answer="x [1].", used=[1]))
+    card = answer_question("How do I apply for SNAP in Texas?", now=MONDAY_10AM, pantries=[])["sources"][0]
+    assert card["kind"] == "official" and "phone" not in card
+
+
+def _suggested_questions():
+    import re as _re
+    source = (Path(__file__).resolve().parent.parent / "frontend" / "i18n.js").read_text()
+    block = source[source.index("const SUGGESTED_QUESTIONS"):source.index("// ---------- saving choices")]
+    return sorted(set(_re.findall(r'"([^"]+\?)"', block)))
+
+
+@pytest.mark.parametrize("question", _suggested_questions())
+def test_every_suggested_question_is_answerable(question, monkeypatch):
+    # A suggestion must never lead to "not sure": it has to find an official source or pantries.
+    fake = FakeAI(answer="ok [1].", used=[1])
+    monkeypatch.setattr(ask, "generate_json", fake)
+    result = answer_question(question, now=MONDAY_10AM)
+    assert result["answer"] not in NOT_SURE.values(), question
+    assert result["sources"], question

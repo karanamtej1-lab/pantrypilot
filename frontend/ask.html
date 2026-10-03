@@ -41,10 +41,15 @@
     <label for="question" class="visually-hidden" data-i18n="ask.questionLabel">Your question</label>
     <textarea id="question" rows="1" maxlength="500" required aria-describedby="composer-note"
               placeholder="Ask a question" data-i18n-attr="placeholder:ask.placeholder"></textarea>
+    <button type="button" id="voice" class="voice" hidden aria-pressed="false"
+            aria-describedby="voice-note" data-i18n-attr="aria-label:ask.voice; title:ask.voice">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+    </button>
     <button type="submit" id="send" class="send" aria-label="Send question" data-i18n-attr="aria-label:ask.send; title:ask.send">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
     </button>
     <p class="composer-note" id="composer-note" data-i18n="ask.note">Please don't type your name, case number, or SSN.</p>
+    <p class="visually-hidden" id="voice-note" data-i18n="ask.voiceNote">Voice typing uses your browser's speech service.</p>
   </form>
 
   <nav class="bottom-nav" aria-label="Main" data-i18n-attr="aria-label:nav.label">

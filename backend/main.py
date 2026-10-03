@@ -148,6 +148,8 @@ def forecast_hours(request: ForecastRequest):
 
 class AskRequest(BaseModel):
     question: str = Field(min_length=2, max_length=500)
+    # The visitor's previous question, so follow-ups like "what about Denton?" make sense.
+    previous: str | None = Field(default=None, max_length=500)
 
 
 # Each question costs money (or free-tier quota), so limit how often one visitor can ask.
@@ -189,7 +191,8 @@ def ask(body: AskRequest, request: Request):
         raise HTTPException(429, "You've asked a lot of questions. Please wait a few minutes, or dial 2-1-1.",
                             headers={"Retry-After": str(wait)})
     try:
-        return answer_question(body.question.strip())
+        previous = body.previous.strip() if body.previous and body.previous.strip() else None
+        return answer_question(body.question.strip(), previous=previous)
     except LLMUnavailable:
         raise HTTPException(503, "The assistant isn't available right now. Please dial 2-1-1 for help.")
 

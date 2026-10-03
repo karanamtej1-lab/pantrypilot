@@ -89,7 +89,7 @@
 .composer {
   position: fixed; left: 0; right: 0; z-index: 1050;
   bottom: calc(64px + env(safe-area-inset-bottom));
-  display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: end;
+  display: grid; grid-template-columns: 1fr auto auto; gap: 8px; align-items: end;
   padding: 10px max(16px, calc((100vw - 720px) / 2 + 16px)) 6px;
   background: var(--bg);
   border-top: 1px solid var(--border);
@@ -143,3 +143,40 @@
 .how-found { margin-top: 10px; font-size: 0.85rem; color: var(--muted); white-space: normal; }
 .how-found summary { cursor: pointer; font-weight: 600; min-height: 32px; display: flex; align-items: center; }
 .how-found ul { margin: 4px 0 0; padding-left: 18px; }
+
+/* ---------- pantry actions, suggestions, listen, voice ---------- */
+
+.card-actions { display: flex; gap: 8px; margin: 6px 0 4px 26px; }
+.action {
+  display: inline-flex; align-items: center; min-height: 40px; padding: 0 14px;
+  font-weight: 700; font-size: 0.85rem; text-decoration: none;
+  color: var(--accent); background: var(--surface);
+  border: 1.5px solid var(--control-border); border-radius: 999px;
+}
+.action:hover { border-color: var(--accent); }
+
+.listen {
+  margin-top: 10px; min-height: 40px; padding: 0 14px;
+  font: inherit; font-size: 0.85rem; font-weight: 700;
+  color: var(--text); background: var(--surface);
+  border: 1.5px solid var(--control-border); border-radius: 999px; cursor: pointer;
+}
+.listen[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+.suggestions { margin-top: 12px; display: grid; gap: 6px; white-space: normal; }
+.suggestions-label { margin: 0; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+.suggestion {
+  text-align: left; min-height: 44px; padding: 8px 12px;
+  font: inherit; font-size: 0.9rem; color: var(--accent);
+  background: var(--accent-soft); border: 1.5px solid transparent; border-radius: 12px; cursor: pointer;
+}
+.suggestion:hover { border-color: var(--accent); }
+
+.voice {
+  width: var(--tap); height: var(--tap);
+  display: grid; place-items: center;
+  color: var(--accent); background: var(--surface);
+  border: 1.5px solid var(--control-border); border-radius: 50%; cursor: pointer;
+}
+.voice svg { width: 22px; height: 22px; }
+.voice[aria-pressed="true"] { background: #b3261e; border-color: #b3261e; color: #fff; }

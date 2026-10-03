@@ -7,6 +7,7 @@ const messages = document.querySelector("#messages");
 const form = document.querySelector("#composer");
 const input = document.querySelector("#question");
 const sendButton = document.querySelector("#send");
+let previousQuestion = null; // sent with the next question so follow-ups make sense
 
 function el(tag, attrs = {}, ...children) {
   const node = document.createElement(tag);
@@ -72,9 +73,57 @@ function sourcesList(sources, lang, answerId) {
         : el("span", {}, number, source.title);
       // The exact sentence from the official source (never reworded).
       const quote = source.quote ? el("blockquote", { class: "quote" }, `“${source.quote}”`) : null;
-      return el("li", { id: `${answerId}-src-${i + 1}`, tabindex: "-1" }, title, quote);
+      // Pantries get the two things people need next: call, or get directions.
+      const actions = source.kind === "pantry" && (source.phone || source.directions)
+        ? el("div", { class: "card-actions" },
+          source.phone && el("a", { class: "action", href: `tel:+1${source.phone.replace(/\D/g, "").slice(-10)}`,
+            "aria-label": `${textIn(lang, "ask.call")} ${source.title} ${source.phone}` }, textIn(lang, "ask.call")),
+          source.directions && el("a", { class: "action", href: source.directions, target: "_blank", rel: "noopener",
+            "aria-label": `${textIn(lang, "ask.directions")}: ${source.title}` }, textIn(lang, "ask.directions")))
+        : null;
+      return el("li", { id: `${answerId}-src-${i + 1}`, tabindex: "-1" }, title, quote, actions);
     }),
   );
+}
+
+// Suggested next questions (idea from Simplicity's suggestions), chosen by what the answer
+// was based on, so every suggestion is something PantryPilot can actually answer.
+function suggestionsFor(sources, lang) {
+  const titles = sources.map((s) => s.title).join(" ");
+  const group = /SNAP/.test(titles) ? "snap" : /WIC/.test(titles) ? "wic" : /2-1-1/.test(titles) ? "two11"
+    : sources.some((s) => s.kind === "pantry") ? "pantry" : "general";
+  const shown = new Set([...messages.querySelectorAll(".msg.user")].map((m) => m.textContent.trim()));
+  const questions = SUGGESTED_QUESTIONS[lang][group].filter((q) => !shown.has(q)).slice(0, 3);
+  if (!questions.length) return null;
+  return el("div", { class: "suggestions" },
+    el("p", { class: "suggestions-label" }, textIn(lang, "ask.suggestions")),
+    ...questions.map((q) => {
+      const button = el("button", { type: "button", class: "suggestion", lang }, q);
+      button.addEventListener("click", () => { input.focus(); ask(q); });
+      return button;
+    }));
+}
+
+// "Listen": read the answer aloud with the browser's built-in voice (nothing is sent anywhere).
+function listenButton(text, lang) {
+  if (!("speechSynthesis" in window)) return null;
+  const button = el("button", { type: "button", class: "listen", "aria-pressed": "false" }, textIn(lang, "ask.listen"));
+  button.addEventListener("click", () => {
+    const speaking = button.getAttribute("aria-pressed") === "true";
+    speechSynthesis.cancel();
+    for (const other of document.querySelectorAll(".listen")) {
+      other.setAttribute("aria-pressed", "false");
+      other.textContent = textIn(other.closest(".msg").lang, "ask.listen");
+    }
+    if (speaking) return;
+    const utterance = new SpeechSynthesisUtterance(text.replace(/\[\d+\]/g, "").replace(/\*\*/g, ""));
+    utterance.lang = lang === "es" ? "es-US" : "en-US";
+    utterance.onend = () => { button.setAttribute("aria-pressed", "false"); button.textContent = textIn(lang, "ask.listen"); };
+    button.setAttribute("aria-pressed", "true");
+    button.textContent = textIn(lang, "ask.stopListening");
+    speechSynthesis.speak(utterance);
+  });
+  return button;
 }
 
 // "How I found this": what was searched, so people can see the answer is grounded.
@@ -113,7 +162,7 @@ async function ask(question) {
     const response = await fetch("/ask", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ question }),
+      body: JSON.stringify({ question, previous: previousQuestion }),
     });
     const body = await response.json().catch(() => ({}));
     waiting.remove();
@@ -125,7 +174,9 @@ async function ask(question) {
     const answerId = `answer-${++answerCount}`;
     const sources = body.sources || [];
     addMessage("assistant", lang, ...renderAnswer(body.answer, sources, lang, answerId),
-      sourcesList(sources, lang, answerId), howFound(body.details, lang));
+      sourcesList(sources, lang, answerId), listenButton(body.answer, lang), howFound(body.details, lang),
+      suggestionsFor(sources, lang));
+    previousQuestion = question;
   } catch (error) {
     waiting.remove();
     addMessage("assistant error", lang, textIn(lang, "ask.errNetwork"));
@@ -178,3 +229,31 @@ function drawStarters() {
 
 drawStarters();
 document.addEventListener("pp:languagechange", drawStarters);
+
+// ---------- voice input (idea from WhimprFlow's dictation) ----------
+// Uses the browser's own speech recognition. It fills in the text box but never sends:
+// people check the words first. Hidden on browsers that don't support it.
+const SpeechRecognitionApi = window.SpeechRecognition || window.webkitSpeechRecognition;
+const voiceButton = document.querySelector("#voice");
+if (SpeechRecognitionApi && voiceButton) {
+  let recognition = null;
+  voiceButton.hidden = false;
+  const setListening = (on) => {
+    voiceButton.setAttribute("aria-pressed", String(on));
+    voiceButton.setAttribute("aria-label", t(on ? "ask.voiceStop" : "ask.voice"));
+  };
+  voiceButton.addEventListener("click", () => {
+    if (recognition) { recognition.stop(); return; }
+    recognition = new SpeechRecognitionApi();
+    recognition.lang = getLang() === "es" ? "es-US" : "en-US";
+    recognition.interimResults = true;
+    recognition.onresult = (event) => {
+      input.value = [...event.results].map((r) => r[0].transcript).join(" ").trim();
+      resize();
+    };
+    recognition.onend = () => { recognition = null; setListening(false); input.focus(); };
+    recognition.onerror = () => { recognition = null; setListening(false); };
+    setListening(true);
+    recognition.start();
+  });
+}

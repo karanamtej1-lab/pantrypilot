@@ -166,7 +166,7 @@ def test_every_volunteer_listing_has_a_name_and_https_link():
 # ---------- deployment (Vercel) ----------
 
 def test_rate_limit_uses_real_ip_on_vercel(monkeypatch):
-    monkeypatch.setattr(main, "answer_question", lambda q: {"answer": "ok", "sources": []})
+    monkeypatch.setattr(main, "answer_question", lambda q, **kw: {"answer": "ok", "sources": []})
     monkeypatch.setattr(main, "ASK_LIMIT", 1)
     main._recent_questions.clear()
     monkeypatch.setenv("VERCEL", "1")
@@ -178,7 +178,7 @@ def test_rate_limit_uses_real_ip_on_vercel(monkeypatch):
 
 
 def test_x_real_ip_is_ignored_when_not_on_vercel(monkeypatch):
-    monkeypatch.setattr(main, "answer_question", lambda q: {"answer": "ok", "sources": []})
+    monkeypatch.setattr(main, "answer_question", lambda q, **kw: {"answer": "ok", "sources": []})
     monkeypatch.setattr(main, "ASK_LIMIT", 1)
     main._recent_questions.clear()
     monkeypatch.delenv("VERCEL", raising=False)
@@ -231,3 +231,15 @@ def test_zip_missing_from_census_uses_pantries_in_that_zip():
 def test_zip_outside_the_area_is_still_a_clear_404():
     response = client.get("/pantries", params={"zip": "90210"})
     assert response.status_code == 404 and "isn't in our" in response.json()["detail"]
+
+
+def test_ask_passes_the_previous_question(monkeypatch):
+    seen = {}
+    def fake(question, previous=None, **kw):
+        seen["previous"] = previous
+        return {"answer": "ok", "sources": []}
+    monkeypatch.setattr(main, "answer_question", fake)
+    main._recent_questions.clear()
+    client.post("/ask", json={"question": "what about Denton?", "previous": "pantries in Plano?"})
+    assert seen["previous"] == "pantries in Plano?"
+    assert client.post("/ask", json={"question": "hi there", "previous": "x" * 501}).status_code == 422
